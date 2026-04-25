@@ -48,7 +48,7 @@ export const test = base.extend({
       },
       // Uncomment to also save a .webm of every run alongside the live stream.
       // Same call, no extra API — onFrame and path can coexist.
-      // path: `${testInfo.outputDir}/screencast.webm`,
+      // path: `${testInfo.outputDir}/${testInfo.title.replace(/[^\w-]+/g, '-')}.webm`,
       quality: 50,
       size: { width: 1280, height: 720 },
     });
