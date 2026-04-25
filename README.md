@@ -7,6 +7,7 @@ Code samples and demo helpers for Playwright across all four bindings — Node, 
 | Directory | What's in it |
 |-----------|-------------|
 | [`vrt/`](vrt/) | Visual regression helpers — pixel-diff + baseline management for every binding |
+| [`screencast-dashboard/`](screencast-dashboard/) | Live-streaming dashboard for parallel Playwright tests (relay + React UI + demo specs) |
 
 ## Bindings
 
