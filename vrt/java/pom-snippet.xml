@@ -1,0 +1,7 @@
+<!-- Add to <dependencies> in pom.xml -->
+<dependency>
+    <groupId>io.github.romankh3</groupId>
+    <artifactId>image-comparison</artifactId>
+    <version>4.4.0</version>
+    <scope>test</scope>
+</dependency>
