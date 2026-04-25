@@ -19,4 +19,15 @@ echo "Dashboard: http://localhost:5173"
 echo "Ctrl-C to stop both."
 echo
 
+# Wait for the dashboard to be reachable, then open it.
+(
+  for _ in {1..30}; do
+    if curl -s -o /dev/null http://localhost:5173; then
+      open http://localhost:5173
+      exit 0
+    fi
+    sleep 0.5
+  done
+) &
+
 wait
