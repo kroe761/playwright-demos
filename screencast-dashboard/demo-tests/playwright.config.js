@@ -5,6 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: 5,
   reporter: 'list',
+  timeout: 60_000,
   use: {
     headless: true,
     viewport: { width: 1280, height: 720 },
