@@ -46,6 +46,9 @@ export const test = base.extend({
           try { ws.send(frame.data); } catch { /* ignore mid-flight close */ }
         }
       },
+      // Uncomment to also save a .webm of every run alongside the live stream.
+      // Same call, no extra API — onFrame and path can coexist.
+      // path: `${testInfo.outputDir}/screencast.webm`,
       quality: 50,
       size: { width: 1280, height: 720 },
     });
