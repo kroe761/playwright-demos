@@ -1,0 +1,12 @@
+{
+  "name": "turbocharge-playwright-slides",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "npx serve . --listen 3000",
+    "present": "open http://localhost:3000 && npm start"
+  },
+  "dependencies": {
+    "reveal.js": "^4.6.1"
+  }
+}
