@@ -56,6 +56,8 @@
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5em; align-items: start; }
 .pain-label { color: #f87171; font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3em; }
 .fix-label  { color: #4ade80; font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3em; }
+.java-label { color: #f0a500; font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3em; }
+.ts-label   { color: #4ec9b0; font-size: 0.75em; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3em; }
 
 /* Monday-takeaway badge */
 .takeaway {
