@@ -1221,8 +1221,13 @@ context.setExtraHTTPHeaders(Map.of(
 
 <section>
   <h2>How it works</h2>
-  <pre><code class="javascript" data-trim>
-// page.screencast — all four bindings
+  <div class="two-col">
+    <div>
+      <div class="ts-label">TypeScript</div>
+      <pre><code class="typescript" data-trim>
+const ws = new WebSocket(
+  `ws://localhost:8080?name=${encodeURIComponent(testInfo.title)}`
+);
 await page.screencast.start({
   onFrame: (frame) => ws.send(frame.data), // stream live
   path: 'recording.webm',                  // save locally
@@ -1230,6 +1235,26 @@ await page.screencast.start({
   size: { width: 1280, height: 720 },
 });
       </code></pre>
+    </div>
+    <div>
+      <div class="java-label">Java</div>
+      <pre><code class="java" data-trim>
+// WsClient wraps org.java-websocket
+var ws = new WsClient(
+  "ws://localhost:8080?name=" + testName
+);
+ws.connect();
+
+page.screencast().start(
+  new Screencast.StartOptions()
+    .setOnFrame(f -> ws.send(f.getData()))
+    .setPath(Paths.get("recording.webm"))
+    .setQuality(50)
+    .setSize(new ViewportSize(1280, 720))
+);
+      </code></pre>
+    </div>
+  </div>
   <p class="lead" style="font-size:0.75em;">
     The repo sample: three processes · ~500 lines total · localhost only.<br/>
     Not a platform investment. Not 10k lines. A week of work.
