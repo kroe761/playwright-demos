@@ -75,7 +75,7 @@
     <li class="fragment">Act 2 — <strong>Frontend without a backend</strong></li>
     <li class="fragment">Act 3 — <strong>Backend through the browser</strong></li>
     <li class="fragment">Act 4 — <strong>Debugging and observability</strong></li>
-    <li class="fragment">Closer — <strong>Playwright as a platform</strong></li>
+    <li class="fragment">Closer — <strong>What you can build with Playwright</strong></li>
   </ul>
   <p class="takeaway fragment" style="margin-top:1.5em;">
     Every feature passes the "could you ship this next Monday?" test.
@@ -791,7 +791,7 @@ expect(resp.status()).toBe(200);
     Walk through each step:
     1. Real browser login — no mocking, no token injection, actual session
     2. page.evaluate() reaches into the live DOM to grab the CSRF token
-    3. context.storageState() hands the session cookies to APIRequestContext inline — no file needed
+    3. context.cookies() finds the session cookie and passes it directly to APIRequestContext — no file needed
     4. From here the browser is out of the picture — pure HTTP calls with real auth
   </aside>
 </section>
@@ -842,7 +842,7 @@ assertThat(resp.status()).isEqualTo(200);
 
 
 <!-- ═══════════════════════════════════════════════════
-     ACT 3 — DEBUGGING AND OBSERVABILITY
+     ACT 4 — DEBUGGING AND OBSERVABILITY
      ═══════════════════════════════════════════════════ -->
 
 <section>
@@ -893,7 +893,6 @@ context.tracing().stop(new Tracing.StopOptions()
       </code></pre>
     </div>
   </div>
-  <div class="placeholder" style="min-height:120px;">[SCREENSHOT: Trace Viewer timeline]</div>
   <div class="takeaway">
     Open at <code>trace.playwright.dev</code> — no install, send a URL to a colleague.
   </div>
@@ -968,6 +967,7 @@ PWDEBUG=1 mvn test -Dtest=MyFailingTest
       </code></pre>
     </div>
   </div>
+  <p style="font-size:0.85em; color:var(--muted); margin-top:0.75em; text-align:center;">Step through actions · Inspect live DOM · Run JS · Pick locators</p>
   <div class="takeaway">Trace Viewer = after-the-fact. Inspector = in-the-moment.</div>
 </section>
 
@@ -1187,8 +1187,8 @@ context.setExtraHTTPHeaders(Map.of(
 <section>
   <div class="act-badge">Act 4</div>
   <blockquote style="font-size:0.9em; border-left:4px solid var(--accent); padding:0.5em 1em; background:var(--surface); border-radius:4px;">
-    That's how to debug failures today.<br/><br/>
-    Here's where Playwright is heading.
+    Everything you've seen today — you can ship on Monday.<br/><br/>
+    But here's one more thing you can do with Playwright.
   </blockquote>
   <aside class="notes">
     Pivot to the closer. One beat of silence, then:
@@ -1201,20 +1201,10 @@ context.setExtraHTTPHeaders(Map.of(
      CLOSER — SCREENCAST DASHBOARD
      ═══════════════════════════════════════════════════ -->
 
-<section>
-  <h2>One more thing</h2>
-  <p class="lead">Playwright 1.59 shipped a <code>screencast</code> API.</p>
-  <p class="lead fragment">So I built something pretty cool.</p>
-  <aside class="notes">
-    Don't explain it yet. Just say you built something.
-    Let the demo do the talking.
-    Pre-warm the servers before you get on stage.
-  </aside>
-</section>
 
 <section>
   <h2>Live demo</h2>
-  <div class="placeholder" style="min-height:300px;">[LIVE DEMO: screencast dashboard — or pre-recorded video fallback]</div>
+  <h3>Built on the <code>screencast</code> API —<br/>shipped in Playwright 1.59</h3>
   <aside class="notes">
     Kick off run-tests.sh.
     Wait for tiles to appear.
@@ -1241,9 +1231,10 @@ await page.screencast.start({
 });
       </code></pre>
   <p class="lead" style="font-size:0.75em;">
-    Three processes · ~500 lines total · localhost only
+    The repo sample: three processes · ~500 lines total · localhost only.<br/>
+    Not a platform investment. Not 10k lines. A week of work.
   </p>
-  <div class="takeaway">Not a same-week feature. A glimpse at the platform trajectory.</div>
+  <p style="font-style:italic; color:var(--accent); font-size:0.9em; margin-top:1em;">See exactly what every browser is doing in CI — live, while it's happening.</p>
   <aside class="notes">
     Architecture: Playwright tests stream frames to a Node relay over
     WebSocket. React dashboard subscribes and renders tiles.
@@ -1262,12 +1253,23 @@ await page.screencast.start({
 <section>
   <h2>What have you built on top of Playwright?</h2>
   <p class="lead">What's the weirdest thing you've automated with it?</p>
-  <div style="margin-top: 2em;">
-    <div class="placeholder" style="min-height:100px;">[QR CODE: github.com/kroe761/playwright-demos]</div>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5em; margin-top:1.5em; text-align:center;">
+    <div>
+      <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">Playwright Demos Repo</p>
+      <img src="img/github.svg" style="width:160px; height:160px;" />
+      <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">github.com/kroe761/playwright-demos</p>
+    </div>
+    <div>
+      <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">LinkedIn</p>
+      <img src="img/linkedin.svg" style="width:160px; height:160px;" />
+      <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">linkedin.com/in/kroe761</p>
+    </div>
+    <div>
+      <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">"Go Forth and Test" Blog</p>
+      <img src="img/blog.svg" style="width:160px; height:160px;" />
+      <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">goforthandtest.com</p>
+    </div>
   </div>
-  <p style="font-size:0.7em; color:var(--muted); margin-top:1em;">
-    github.com/kroe761/playwright-demos
-  </p>
   <aside class="notes">
     Don't say "any questions?" — it invites silence.
     Start with the direct prompt: what have YOU built?
@@ -1282,6 +1284,13 @@ await page.screencast.start({
     — MCP/Agents: Playwright MCP server exists, Anthropic ships it —
       Claude can drive a browser directly now
   </aside>
+</section>
+
+<section style="display:flex; align-items:center; justify-content:center; height:100%;">
+  <h1 style="color: var(--accent); font-size: 3.5em; text-align:center; line-height:1.3;">
+    Go Forth and<br/>
+    <span style="font-family: 'Stay Dreaming', cursive; color: #60a5fa; font-size: 1.8em; font-weight: 400;">Automate</span><span style="font-family: 'Stay Dreaming', cursive; color: #60a5fa; font-size: 1.8em; font-weight: 400;">!</span>
+  </h1>
 </section>
 
 

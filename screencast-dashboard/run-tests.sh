@@ -4,4 +4,5 @@
 
 set -e
 cd "$(dirname "$0")/demo-tests"
+npm install --silent
 npm test

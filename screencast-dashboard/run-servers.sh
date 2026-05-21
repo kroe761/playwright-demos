@@ -5,6 +5,10 @@
 set -e
 cd "$(dirname "$0")"
 
+echo "Installing dependencies..."
+(cd relay-server && npm install --silent)
+(cd dashboard && npm install --silent)
+
 (cd relay-server && npm start) &
 RELAY=$!
 
