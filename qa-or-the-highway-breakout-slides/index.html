@@ -1225,10 +1225,13 @@ context.setExtraHTTPHeaders(Map.of(
     <div>
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
+// Open a websocket connection
 const name = encodeURIComponent(testInfo.title);
 const ws = new WebSocket(
   `ws://localhost:8080?name=${name}`
 );
+
+// Send the screencast to the websocket
 await page.screencast.start({
   onFrame: (frame) => ws.send(frame.data),
   path: 'recording.webm',
@@ -1240,11 +1243,12 @@ await page.screencast.start({
     <div>
       <div class="java-label">Java</div>
       <pre><code class="java" data-trim>
-// WsClient wraps org.java-websocket
+// Open a websocket connection
 var url = "ws://localhost:8080?name=" + testName;
 var ws = new WsClient(url);
 ws.connect();
 
+// Send the screencast to the websocket
 page.screencast().start(
   new Screencast.StartOptions()
     .setOnFrame(f -> ws.send(f.getData()))
@@ -1256,8 +1260,7 @@ page.screencast().start(
     </div>
   </div>
   <p class="lead" style="font-size:0.75em;">
-    The repo sample: three processes · ~500 lines total · localhost only.<br/>
-    Not a platform investment. Not 10k lines. A week of work.
+    The repo sample: three processes · ~500 lines total · A week of work.
   </p>
   <p style="font-style:italic; color:var(--accent); font-size:0.9em; margin-top:1em;">See exactly what every browser is doing in CI — live, while it's happening.</p>
   <aside class="notes">
