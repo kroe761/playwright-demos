@@ -1225,12 +1225,13 @@ context.setExtraHTTPHeaders(Map.of(
     <div>
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
+const name = encodeURIComponent(testInfo.title);
 const ws = new WebSocket(
-  `ws://localhost:8080?name=${encodeURIComponent(testInfo.title)}`
+  `ws://localhost:8080?name=${name}`
 );
 await page.screencast.start({
-  onFrame: (frame) => ws.send(frame.data), // stream live
-  path: 'recording.webm',                  // save locally
+  onFrame: (frame) => ws.send(frame.data),
+  path: 'recording.webm',
   quality: 50,
   size: { width: 1280, height: 720 },
 });
@@ -1240,9 +1241,8 @@ await page.screencast.start({
       <div class="java-label">Java</div>
       <pre><code class="java" data-trim>
 // WsClient wraps org.java-websocket
-var ws = new WsClient(
-  "ws://localhost:8080?name=" + testName
-);
+var url = "ws://localhost:8080?name=" + testName;
+var ws = new WsClient(url);
 ws.connect();
 
 page.screencast().start(
