@@ -691,11 +691,11 @@ ctx.grantPermissions(List.of("geolocation"));
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
 const api = await request.newContext({
-  baseURL: 'http://localhost:3000'
+  baseURL: process.env.BASE_URL
 });
 
-await api.post('/api/test-fixtures', {
-  data: { userId: 'test-user-42', plan: 'enterprise' }
+await api.post('/api/users', {
+  data: { email: 'test@example.com', plan: 'enterprise' }
 });
 
 await page.goto('/dashboard');
@@ -706,12 +706,12 @@ await page.goto('/dashboard');
       <pre><code class="java" data-trim>
 APIRequestContext api = playwright.request()
     .newContext(new APIRequest.NewContextOptions()
-        .setBaseURL("http://localhost:3000"));
+        .setBaseURL(System.getenv("BASE_URL")));
 
-api.post("/api/test-fixtures",
+api.post("/api/users",
     RequestOptions.create().setData(Map.of(
-        "userId", "test-user-42",
-        "plan",   "enterprise")));
+        "email", "test@example.com",
+        "plan",  "enterprise")));
 
 page.navigate("/dashboard");
       </code></pre>
@@ -720,32 +720,108 @@ page.navigate("/dashboard");
   <div class="takeaway">Skip the UI setup chain. Tests that took 30s of clicks take 200ms.</div>
   <aside class="notes">
     APIRequestContext is a full HTTP client baked into Playwright.
-    You can call your backend directly to create state, then test
-    the UI that depends on that state. Skips the "navigate, click,
-    fill, submit" setup chain. This is the intro to the wow.
+    Key point: you're calling an endpoint that already exists — /api/users,
+    /api/orders, whatever your app already has. No new backend work required.
+    Skips the "navigate, click, fill, submit" setup chain. Same-week adoptable.
+  </aside>
+</section>
+
+<section>
+  <div class="act-badge">Act 3</div>
+  <h2>Reuse your session across tests</h2>
+  <h3>Log in once. Never log in again.</h3>
+  <div class="two-col">
+    <div>
+      <div class="ts-label">TypeScript</div>
+      <pre><code class="typescript" data-trim>
+// Global setup — log in, then save:
+await context.storageState({ path: 'auth.json' });
+
+// Every test — start already authenticated:
+const context = await browser.newContext({
+  storageState: 'auth.json'
+});
+      </code></pre>
+    </div>
+    <div>
+      <div class="java-label">Java</div>
+      <pre><code class="java" data-trim>
+// Global setup — log in, then save:
+context.storageState(new BrowserContext.StorageStateOptions()
+    .setPath(Paths.get("auth.json")));
+
+// Every test — start already authenticated:
+BrowserContext context = browser.newContext(
+    new Browser.NewContextOptions()
+        .setStorageStatePath(Paths.get("auth.json")));
+      </code></pre>
+    </div>
+  </div>
+  <div class="takeaway">Log in once per suite run. Every test starts already authenticated.</div>
+  <aside class="notes">
+    storageState() saves cookies and localStorage to a file.
+    Load it into any new context and that context is already logged in —
+    no UI login flow, no API call, just the session.
+    Commit auth.json to your test fixtures or regenerate it in CI setup.
+    If your app uses localStorage tokens, this catches those too — not just cookies.
   </aside>
 </section>
 
 <section class="wow-slide">
   <div class="act-badge">Act 3</div>
   <h2>Layer-crossing auth</h2>
-  <h3>Browser login → API calls, in the same test</h3>
-  <div class="placeholder">[PRE-RECORDED VIDEO: layer-crossing auth demo]</div>
+  <h3>Browser login → scrape what you need → call the backend directly</h3>
+  <div class="ts-label">TypeScript</div>
+  <pre><code class="typescript" data-trim>
+// Scrape CSRF and session cookie
+const csrf = await page.evaluate(() => document.querySelector('meta[name="csrf-token"]').content);
+const session = (await context.cookies()).find(c => c.name === 'session');
+
+// Set CSRF and Session on the api context
+const api = await request.newContext({
+  baseURL: process.env.BASE_URL,
+  extraHTTPHeaders: { 'X-CSRF-Token': csrf, 'Cookie': `session=${session.value}` }
+});
+
+// Hit the backend directly — no more UI
+const resp = await api.get('/api/account/settings');
+expect(resp.status()).toBe(200);
+  </code></pre>
   <aside class="notes">
-    The demo:
-    1. Log in via UI — real browser login, real session
-    2. Scrape CSRF token from the DOM via page.evaluate()
-    3. Hand storageState() + CSRF to APIRequestContext
-    4. Call the backend directly — no browser
-    5. Assert on the API response
+    Walk through each step:
+    1. Real browser login — no mocking, no token injection, actual session
+    2. page.evaluate() reaches into the live DOM to grab the CSRF token
+    3. context.storageState() hands the session cookies to APIRequestContext inline — no file needed
+    4. From here the browser is out of the picture — pure HTTP calls with real auth
+  </aside>
+</section>
 
-    Narration:
-    "Postman can't do this. Curl can't do this. REST Assured can't
-    do this without a huge auth-harness investment. Playwright can —
-    because it's the only tool in your test stack that has a real
-    browser AND a real HTTP client in the same process."
+<section class="wow-slide">
+  <div class="act-badge">Act 3</div>
+  <h2>Layer-crossing auth</h2>
+  <h3>Browser login → scrape what you need → call the backend directly</h3>
+  <div class="java-label">Java</div>
+  <pre><code class="java" data-trim>
+// Scrape CSRF and session cookie
+String csrf = (String) page.evaluate("document.querySelector('meta[name=\"csrf-token\"]').content");
+Optional&lt;Cookie&gt; session = context.cookies().stream()
+    .filter(c -> c.name.equals("session")).findFirst().orElseThrow();
 
-    ~3 min pre-recorded. This is the Act 2 punchline.
+// Set CSRF and Session on the api context
+APIRequestContext api = playwright.request().newContext(
+    new APIRequest.NewContextOptions()
+        .setBaseURL(System.getenv("BASE_URL"))
+        .setExtraHTTPHeaders(Map.of("X-CSRF-Token", csrf, "Cookie", "session=" + session.value)));
+
+// Hit the backend directly — no more UI
+APIResponse resp = api.get("/api/account/settings");
+assertThat(resp.status()).isEqualTo(200);
+  </code></pre>
+  <aside class="notes">
+    "Postman can't do this. Curl can't do this. REST Assured can't do this
+    without a huge auth-harness investment. Playwright can — because it's the
+    only tool in your stack with a real browser AND a real HTTP client
+    in the same process."
   </aside>
 </section>
 
@@ -753,7 +829,7 @@ page.navigate("/dashboard");
   <div class="act-badge">Act 3</div>
   <blockquote style="font-size:0.9em; border-left:4px solid var(--accent); padding:0.5em 1em; background:var(--surface); border-radius:4px;">
     Postman can't do this. Curl can't do this.<br/>
-    REST Assured can't do this without a huge auth-harness investment.<br/><br/>
+    REST Assured can't do this without a separate browser automation tool like Selenium.<br/><br/>
     Playwright can — because it's the only tool in your test stack
     with a real browser <em>and</em> a real HTTP client in the same process.
   </blockquote>
@@ -835,7 +911,37 @@ context.tracing().stop(new Tracing.StopOptions()
 
 <section>
   <div class="act-badge">Act 4</div>
-  <h2><code>page.pause()</code> + Playwright Inspector</h2>
+  <h2>Trace Viewer — Actions</h2>
+  <img src="img/actions.png" alt="Trace Viewer actions panel" style="max-height:580px; max-width:100%; width:auto;" />
+</section>
+
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2>Trace Viewer — Screenshots</h2>
+  <img src="img/screenshots.png" alt="Trace Viewer screenshots panel" style="max-height:580px; max-width:100%; width:auto;" />
+</section>
+
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2>Trace Viewer — Errors</h2>
+  <img src="img/errors.png" alt="Trace Viewer errors panel" style="max-height:580px; max-width:100%; width:auto;" />
+</section>
+
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2>Trace Viewer — Console</h2>
+  <img src="img/console.png" alt="Trace Viewer console panel" style="max-height:580px; max-width:100%; width:auto;" />
+</section>
+
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2>Trace Viewer — Network</h2>
+  <img src="img/network.png" alt="Trace Viewer network panel" style="max-height:580px; max-width:100%; width:auto;" />
+</section>
+
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2><code>page.pause()</code> +<br/>Playwright Inspector</h2>
   <div class="two-col">
     <div>
       <div class="ts-label">TypeScript</div>
@@ -845,6 +951,7 @@ await page.pause();
 // → Inspector opens, test freezes
       </code></pre>
       <pre><code class="bash" data-trim>
+# Or, from the command line directly
 PWDEBUG=1 npx playwright test my-test.spec.ts
       </code></pre>
     </div>
@@ -856,11 +963,18 @@ page.pause();
 // → Inspector opens, test freezes
       </code></pre>
       <pre><code class="bash" data-trim>
+# Or, from the command line directly
 PWDEBUG=1 mvn test -Dtest=MyFailingTest
       </code></pre>
     </div>
   </div>
   <div class="takeaway">Trace Viewer = after-the-fact. Inspector = in-the-moment.</div>
+</section>
+
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2>Playwright Inspector</h2>
+  <img src="img/inspector.png" alt="Playwright Inspector" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
     When the trace isn't enough — when you need to poke at live state.
     Drop page.pause(), run the test, Inspector opens.
@@ -872,44 +986,74 @@ PWDEBUG=1 mvn test -Dtest=MyFailingTest
 
 <section>
   <div class="act-badge">Act 4</div>
-  <h2>Visual regression — from primitives</h2>
+  <h2>Visual regression —<br/>TypeScript</h2>
   <div class="two-col">
     <div>
-      <div class="ts-label">TypeScript</div>
+      <p style="font-size:0.8em; color:var(--muted);">Save the baseline</p>
       <pre><code class="typescript" data-trim>
-// Built in to @playwright/test:
-await expect(page).toHaveScreenshot(
-  'checkout-summary.png');
-// First run: creates baseline
-// Subsequent: pixel-diff against baseline
-// On failure: expected/actual/diff triple
+// First run — saves baseline to disk
+await page.screenshot({
+  path: 'snapshots/checkout.png'
+});
       </code></pre>
     </div>
     <div>
-      <div class="java-label">Java</div>
-      <pre><code class="java" data-trim>
-// ~80 lines + one image library
-VisualAssert.assertScreenshot(
-    page, "checkout-summary");
-// First run: creates baseline
-// Subsequent: pixel-diff against baseline
+      <p style="font-size:0.8em; color:var(--muted);">Assert against it</p>
+      <pre><code class="typescript" data-trim>
+// Built in to @playwright/test
+await expect(page).toHaveScreenshot(
+  'checkout.png');
+// Subsequent: pixel-diff
 // On failure: expected/actual/diff triple
       </code></pre>
     </div>
   </div>
-  <div class="takeaway">
-    Node ships <code>toHaveScreenshot()</code> built-in.
-    This is how you get there in Java, Python, and .NET today.
-  </div>
+  <div class="takeaway"><code>toHaveScreenshot()</code> handles baseline management automatically — built in to @playwright/test.</div>
   <aside class="notes">
-    hasScreenshot() is Node-only — it lives in @playwright/test.
-    For every other binding, page.screenshot() gives you the bytes.
-    ~80 lines + one image library = baseline management, pixel-diff,
-    diff-on-failure. Teaching point: Playwright's primitives are
-    good enough that filling binding gaps is a Saturday afternoon.
+    Left: page.screenshot() is the primitive — just bytes saved to disk.
+    Right: toHaveScreenshot() wraps it with baseline management.
+    First run saves. Every run after diffs. Failure gives you three images: expected, actual, diff.
+    This is Node/TypeScript only — lives in @playwright/test, not the core library.
+    Next slide: how to get the same thing in Java.
+  </aside>
+</section>
 
-    Demo: introduce a deliberate 3-pixel CSS shift → fail →
-    expected/actual/diff triple shows up in output.
+<section>
+  <div class="act-badge">Act 4</div>
+  <h2>Visual regression —<br/>Java</h2>
+  <div class="two-col">
+    <div>
+      <p style="font-size:0.8em; color:var(--muted);">Save the baseline</p>
+      <pre><code class="java" data-trim>
+// First run — saves baseline to disk
+page.screenshot(new Page.ScreenshotOptions()
+    .setPath(Paths.get(
+        "snapshots/checkout.png")));
+      </code></pre>
+    </div>
+    <div>
+      <p style="font-size:0.8em; color:var(--muted);">Assert against it</p>
+      <pre><code class="java" data-trim>
+// ~60 lines + one image library
+VisualAssert.assertScreenshot(
+    page, "checkout");
+// Subsequent: pixel-diff
+// On failure: expected/actual/diff triple
+      </code></pre>
+    </div>
+  </div>
+  <p style="font-size:0.65em; color:var(--muted); margin-top:0.5em;">
+    Diff library: <code>com.github.romankh3 / image-comparison</code><br/>
+    Full source: <code>github.com/kroe761/playwright-demos/tree/main/vrt</code>
+  </p>
+  <div class="takeaway">Works in Java today. Grab the ~60 lines of code from the repo.</div>
+  <aside class="notes">
+    page.screenshot() is identical across all four bindings.
+    Java just doesn't ship toHaveScreenshot() — so you write the wrapper yourself.
+    ~80 lines + image-comparison (romankh3) = baseline management, pixel-diff, diff-on-failure.
+    Full source at github.com/kroe761/playwright-demos/tree/main/vrt — Java, Python, .NET all there.
+    Teaching point: the primitive is good enough that filling the gap is a Saturday afternoon.
+    Demo: introduce a deliberate 3-pixel CSS shift → fail → diff triple in output.
   </aside>
 </section>
 
@@ -920,14 +1064,18 @@ VisualAssert.assertScreenshot(
     <div>
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
+// JS console errors
 page.on('console', msg => {
   if (msg.type() === 'error')
     errors.push(msg.text());
 });
+// Unhandled exceptions
 page.on('pageerror', err =>
   failures.push(err.message));
+// Failed network requests
 page.on('requestfailed', req =>
-  networkFailures.push(`${req.url()} — ${req.failure()}`));
+  networkFailures.push(
+    `${req.url()} — ${req.failure()}`));
 
 expect(errors).toHaveLength(0);
       </code></pre>
@@ -935,14 +1083,18 @@ expect(errors).toHaveLength(0);
     <div>
       <div class="java-label">Java</div>
       <pre><code class="java" data-trim>
+// JS console errors
 page.onConsoleMessage(msg -> {
     if (msg.type().equals("error"))
         errors.add(msg.text());
 });
+// Unhandled exceptions
 page.onPageError(err ->
     failures.add(err.message()));
+// Failed network requests
 page.onRequestFailed(req ->
-    networkFailures.add(req.url() + " — " + req.failure()));
+    networkFailures.add(
+        req.url() + " — " + req.failure()));
 
 assertThat(errors).isEmpty();
       </code></pre>
@@ -960,7 +1112,7 @@ assertThat(errors).isEmpty();
 
 <section class="wow-slide">
   <div class="act-badge">Act 4</div>
-  <h2><code>traceparent</code> — distributed tracing</h2>
+  <h2><code>traceparent</code> —<br/>distributed tracing</h2>
   <div class="two-col">
     <div>
       <div class="ts-label">TypeScript</div>
@@ -1001,7 +1153,7 @@ context.setExtraHTTPHeaders(Map.of(
 <section class="wow-slide">
   <div class="act-badge">Act 4</div>
   <h2>The trace — beginning</h2>
-  <img src="img/dynatrace-1.png" alt="Dynatrace distributed trace — beginning" style="max-height:560px; width:auto;" />
+  <img src="img/dynatrace-1.png" alt="Dynatrace distributed trace — beginning" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
     Walk through the top of the trace — the initial request chain.
     Point out how the traceparent header ties the Playwright test
@@ -1012,7 +1164,7 @@ context.setExtraHTTPHeaders(Map.of(
 <section class="wow-slide">
   <div class="act-badge">Act 4</div>
   <h2>The trace — middle</h2>
-  <img src="img/dynatrace-2.png" alt="Dynatrace distributed trace — middle" style="max-height:560px; width:auto;" />
+  <img src="img/dynatrace-2.png" alt="Dynatrace distributed trace — middle" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
     Mid-trace: show the downstream service calls, DB queries,
     and cache operations. This is what one Playwright test triggered.
@@ -1022,7 +1174,7 @@ context.setExtraHTTPHeaders(Map.of(
 <section class="wow-slide">
   <div class="act-badge">Act 4</div>
   <h2>The trace — end</h2>
-  <img src="img/dynatrace-3.png" alt="Dynatrace distributed trace — end" style="max-height:560px; width:auto;" />
+  <img src="img/dynatrace-3.png" alt="Dynatrace distributed trace — end" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
     End of the trace. Full picture: every service, every span, end to end.
     Narrate: "You know which backend call your test triggered.
@@ -1034,8 +1186,8 @@ context.setExtraHTTPHeaders(Map.of(
 <section>
   <div class="act-badge">Act 4</div>
   <blockquote style="font-size:0.9em; border-left:4px solid var(--accent); padding:0.5em 1em; background:var(--surface); border-radius:4px;">
-    Here's how to debug failures today.<br/><br/>
-    And here's where Playwright is heading.
+    That's how to debug failures today.<br/><br/>
+    Here's where Playwright is heading.
   </blockquote>
   <aside class="notes">
     Pivot to the closer. One beat of silence, then:
@@ -1050,8 +1202,8 @@ context.setExtraHTTPHeaders(Map.of(
 
 <section>
   <h2>One more thing</h2>
-  <p class="lead">Playwright 1.60 shipped a <code>screencast</code> API.</p>
-  <p class="lead fragment">So I built something over a weekend.</p>
+  <p class="lead">Playwright 1.59 shipped a <code>screencast</code> API.</p>
+  <p class="lead fragment">So I built something pretty cool.</p>
   <aside class="notes">
     Don't explain it yet. Just say you built something.
     Let the demo do the talking.
@@ -1146,11 +1298,18 @@ await page.screencast.start({
     transitionSpeed: 'fast',
     controls: false,
     progress: true,
-    center: true,
+    center: false,
     width: 1280,
     height: 720,
     plugins: [ RevealNotes, RevealHighlight ],
   });
+
+  function updateCenter(indexh) {
+    Reveal.configure({ center: indexh < 4 });
+  }
+
+  Reveal.on('ready', e => updateCenter(e.indexh));
+  Reveal.on('slidechanged', e => updateCenter(e.indexh));
 </script>
 </body>
 </html>
