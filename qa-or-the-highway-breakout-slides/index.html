@@ -71,13 +71,13 @@
 <section>
   <h2>Today's Agenda</h2>
   <ul>
-    <li class="fragment">Act 1 — <strong>Type Less. Test Better.</strong></li>
-    <li class="fragment">Act 2 — <strong>Frontend without a backend</strong></li>
-    <li class="fragment">Act 3 — <strong>Backend through the browser</strong></li>
-    <li class="fragment">Act 4 — <strong>Debugging and observability</strong></li>
-    <li class="fragment">Closer — <strong>What you can build with Playwright</strong></li>
+    <li>Act 1 — <strong>Type Less. Test Better.</strong></li>
+    <li>Act 2 — <strong>Frontend without a backend</strong></li>
+    <li>Act 3 — <strong>Backend through the browser</strong></li>
+    <li>Act 4 — <strong>Debugging and observability</strong></li>
+    <li>Closer — <strong>What you can build with Playwright</strong></li>
   </ul>
-  <p class="takeaway fragment" style="margin-top:1.5em;">
+  <p class="takeaway" style="margin-top:1.5em;">
     Every feature passes the "could you ship this next Monday?" test.
   </p>
   <aside class="notes">
@@ -432,7 +432,7 @@ page.locator("input[type=file]")
 <section class="wow-slide">
   <div class="act-badge">Act 1</div>
   <h2>Codegen</h2>
-  <video autoplay muted style="width:100%; max-height:600px;">
+  <video data-autoplay muted style="width:100%; max-height:600px;">
     <source src="img/codegen.mp4" type="video/mp4" />
   </video>
   <aside class="notes">
@@ -834,7 +834,7 @@ assertThat(resp.status()).isEqualTo(200);
     with a real browser <em>and</em> a real HTTP client in the same process.
   </blockquote>
   <aside class="notes">
-    Closing transition into Act 3.
+    Closing transition into Act 4.
     Pause here for a second. Let it land.
     Then: "Now — what happens when something goes wrong?"
   </aside>
@@ -853,7 +853,7 @@ assertThat(resp.status()).isEqualTo(200);
     "Playwright remembers everything so you don't have to."
   </p>
   <aside class="notes">
-    Act 3 is where Playwright stops being "a test runner" and starts
+    Act 4 is where Playwright stops being "a test runner" and starts
     being "a diagnostic layer for your whole stack." The framing:
     every feature here is about reducing time-to-diagnosis.
   </aside>
@@ -1192,7 +1192,7 @@ context.setExtraHTTPHeaders(Map.of(
   </blockquote>
   <aside class="notes">
     Pivot to the closer. One beat of silence, then:
-    "1.60 shipped a screencast API. I built something with it."
+    "1.59 shipped a screencast API. I built something with it."
   </aside>
 </section>
 
@@ -1203,20 +1203,67 @@ context.setExtraHTTPHeaders(Map.of(
 
 
 <section>
-  <h2>Live demo</h2>
-  <h3>Built on the <code>screencast</code> API —<br/>shipped in Playwright 1.59</h3>
-  <aside class="notes">
-    Kick off run-tests.sh.
-    Wait for tiles to appear.
-    Let it run for 15-20 seconds so the audience sees multiple tiles live.
-    Click a tile to zoom.
-    Point at the tile that's still counting when others have dropped.
-    "Each tile is a real headless browser, streaming JPEG frames over
-    WebSocket to this React dashboard. Live. In parallel."
+  <h2>Playwright CI Test Viewer</h2>
+  <p style="font-size:0.75em; color:var(--muted); margin:0.2em 0 0.6em;">Architecture</p>
+  <svg viewBox="0 0 780 260" style="width:82%; display:block; margin:0 auto;">
+    <!-- PLAYWRIGHT TESTS label -->
+    <text x="87" y="16" text-anchor="middle" fill="#737373" font-size="11" font-family="system-ui,sans-serif" font-weight="700" letter-spacing="1.5">PLAYWRIGHT TESTS</text>
+    <!-- Test boxes -->
+    <rect x="2"  y="24" width="170" height="36" rx="5" fill="#1a1a1a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="87" y="47" text-anchor="middle" fill="#e5e5e5" font-size="14" font-family="ui-monospace,monospace">test-one</text>
+    <rect x="2"  y="68" width="170" height="36" rx="5" fill="#1a1a1a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="87" y="91" text-anchor="middle" fill="#e5e5e5" font-size="14" font-family="ui-monospace,monospace">test-two</text>
+    <rect x="2"  y="112" width="170" height="36" rx="5" fill="#1a1a1a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="87" y="135" text-anchor="middle" fill="#e5e5e5" font-size="14" font-family="ui-monospace,monospace">test-three</text>
+    <rect x="2"  y="156" width="170" height="36" rx="5" fill="#1a1a1a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="87" y="179" text-anchor="middle" fill="#e5e5e5" font-size="14" font-family="ui-monospace,monospace">test-four</text>
+    <rect x="2"  y="200" width="170" height="36" rx="5" fill="#1a1a1a" stroke="#a855f7" stroke-width="1.5"/>
+    <text x="87" y="223" text-anchor="middle" fill="#e5e5e5" font-size="14" font-family="ui-monospace,monospace">test-five</text>
+    <!-- Fan-in lines to spine at x=210 -->
+    <line x1="172" y1="42"  x2="210" y2="42"  stroke="#444" stroke-width="1"/>
+    <line x1="172" y1="86"  x2="210" y2="86"  stroke="#444" stroke-width="1"/>
+    <line x1="172" y1="130" x2="210" y2="130" stroke="#444" stroke-width="1"/>
+    <line x1="172" y1="174" x2="210" y2="174" stroke="#444" stroke-width="1"/>
+    <line x1="172" y1="218" x2="210" y2="218" stroke="#444" stroke-width="1"/>
+    <!-- Vertical spine -->
+    <line x1="210" y1="42" x2="210" y2="218" stroke="#444" stroke-width="1"/>
+    <!-- Arrow from spine to relay (wider gap: 210→310) -->
+    <line x1="210" y1="130" x2="350" y2="130" stroke="#737373" stroke-width="2"/>
+    <polygon points="346,125 358,130 346,135" fill="#737373"/>
+    <!-- Arrow label — centered in gap at x=280 -->
+    <text x="280" y="116" text-anchor="middle" fill="#555" font-size="10" font-family="system-ui,sans-serif">JPEG frames</text>
+    <text x="280" y="128" text-anchor="middle" fill="#555" font-size="10" font-family="system-ui,sans-serif">via WebSocket</text>
+    <!-- WebSocket Relay box -->
+    <rect x="358" y="86" width="178" height="88" rx="8" fill="#1a1a1a" stroke="#f59e0b" stroke-width="2"/>
+    <text x="447" y="127" text-anchor="middle" fill="#f59e0b" font-size="15" font-family="system-ui,sans-serif" font-weight="700">WebSocket Relay</text>
+    <text x="447" y="150" text-anchor="middle" fill="#737373" font-size="12" font-family="system-ui,sans-serif">Node.js · :8080</text>
+    <!-- Arrow from relay to dashboard -->
+    <line x1="536" y1="130" x2="606" y2="130" stroke="#737373" stroke-width="2"/>
+    <polygon points="602,125 614,130 602,135" fill="#737373"/>
+    <text x="571" y="116" text-anchor="middle" fill="#555" font-size="10" font-family="system-ui,sans-serif">broadcast</text>
+    <!-- Dashboard box -->
+    <rect x="614" y="86" width="162" height="88" rx="8" fill="#1a1a1a" stroke="#10b981" stroke-width="2"/>
+    <text x="695" y="127" text-anchor="middle" fill="#10b981" font-size="15" font-family="system-ui,sans-serif" font-weight="700">Dashboard</text>
+    <text x="695" y="150" text-anchor="middle" fill="#737373" font-size="12" font-family="system-ui,sans-serif">React · :5173</text>
+  </svg>
+</section>
 
-    If live demo fails: switch to pre-recorded video fallback immediately.
-    Do not debug on stage.
-  </aside>
+<section>
+  <img src="img/playwright-dashboard.png" alt="Playwright screencast dashboard" style="max-height:620px; max-width:100%; width:auto; border:3px solid var(--border); border-radius:8px;" />
+</section>
+
+<section>
+  <h2>The test page</h2>
+  <video data-autoplay muted controls style="width:100%; max-height:580px; border:3px solid var(--border); border-radius:8px;">
+    <source src="img/test-page.mp4" type="video/mp4" />
+  </video>
+</section>
+
+<section>
+  <h2>Dashboard in action</h2>
+  <video data-autoplay muted controls style="width:100%; max-height:580px; border:3px solid var(--border); border-radius:8px;">
+    <source src="img/dashboard-in-action.mp4" type="video/mp4" />
+  </video>
 </section>
 
 <section>
@@ -1260,14 +1307,14 @@ page.screencast().start(
     </div>
   </div>
   <p class="lead" style="font-size:0.75em;">
-    The repo sample: three processes · ~500 lines total · A week of work.
+    The repo sample: three processes · ~500 lines total · A few days of work.
   </p>
   <p style="font-style:italic; color:var(--accent); font-size:0.9em; margin-top:1em;">See exactly what every browser is doing in CI — live, while it's happening.</p>
   <aside class="notes">
     Architecture: Playwright tests stream frames to a Node relay over
     WebSocket. React dashboard subscribes and renders tiles.
     onFrame and path coexist — same call, live streaming AND saved video.
-    The whole thing is ~500 lines. I built it in a weekend.
+    The whole thing is ~500 lines. I built it in a few days.
     That's the point: the primitives are now good enough that
     things that felt impossible are a Saturday.
   </aside>
@@ -1279,23 +1326,28 @@ page.screencast().start(
      ═══════════════════════════════════════════════════ -->
 
 <section>
-  <h2>What have you built on top of Playwright?</h2>
-  <p class="lead">What's the weirdest thing you've automated with it?</p>
-  <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5em; margin-top:1.5em; text-align:center;">
+  <h2>Questions?</h2>
+  <p class="lead">Also - what's the weirdest thing you've automated?</p>
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1.5em; margin-top:1.5em; text-align:center;">
     <div>
       <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">Playwright Demos Repo</p>
-      <img src="img/github.svg" style="width:160px; height:160px;" />
+      <img src="img/github.svg" style="width:130px; height:130px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">github.com/kroe761/playwright-demos</p>
     </div>
     <div>
-      <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">LinkedIn</p>
-      <img src="img/linkedin.svg" style="width:160px; height:160px;" />
+      <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">LinkedIn<br/>&nbsp;</p>
+      <img src="img/linkedin.svg" style="width:130px; height:130px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">linkedin.com/in/kroe761</p>
     </div>
     <div>
       <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">"Go Forth and Test" Blog</p>
-      <img src="img/blog.svg" style="width:160px; height:160px;" />
+      <img src="img/blog.svg" style="width:130px; height:130px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">goforthandtest.com</p>
+    </div>
+    <div>
+      <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">Session Feedback</p>
+      <img src="img/feedback-qr.svg" style="width:130px; height:130px;" />
+      <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">QA or the Highway</p>
     </div>
   </div>
   <aside class="notes">
