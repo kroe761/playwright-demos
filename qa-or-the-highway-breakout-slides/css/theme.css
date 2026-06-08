@@ -11,6 +11,7 @@
   --code-bg:     #1e1e2e;
 }
 
+html, body      { background: #0a0a0a; }
 .reveal-viewport { background: var(--bg); }
 .reveal          { color: var(--text); font-family: system-ui, -apple-system, sans-serif; }
 
