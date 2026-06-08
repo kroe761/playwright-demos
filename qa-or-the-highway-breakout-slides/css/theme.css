@@ -110,3 +110,7 @@ html, body      { background: #0a0a0a; }
 /* Dim items not yet revealed */
 .reveal .fragment { opacity: 0.2; }
 .reveal .fragment.visible { opacity: 1; }
+
+/* Fully-hidden fragment — for a clean reveal-on-advance (not dimmed) */
+.reveal .fragment.hidden-until-shown { opacity: 0; }
+.reveal .fragment.hidden-until-shown.visible { opacity: 1; }

@@ -28,10 +28,11 @@
     Kevin Roe · QA or the Highway 2026
   </p>
   <aside class="notes">
-    Welcome! Before we dive in, a quick show of hands —
-    raise your hand if you have at least one Playwright test
-    in production. Keep it up if you have more than ten.
-    Good — that's exactly who this talk is for.
+    <ul>
+      <li>Show of hands: 1+ Playwright test in prod → 10+ → 100+</li>
+      <li>"That's exactly who I built this talk for"</li>
+      <li>Promise: everything ships Monday</li>
+    </ul>
   </aside>
 </section>
 
@@ -56,11 +57,11 @@
     </div>
   </div>
   <aside class="notes">
-    I'm Kevin Roe, a Senior SDET at Ramsey Solutions. I've spent about
-    fourteen years building test automation frameworks, and these days
-    I'm focused on automation infrastructure, tooling, and helping teams
-    level up. And on the side, I teach coding camps for middle and high
-    school students.
+    <ul>
+      <li>Senior SDET @ Ramsey · 14 yrs building frameworks</li>
+      <li>Teach kids to code — one-sentence-usefulness bar</li>
+      <li>That's my family</li>
+    </ul>
   </aside>
 </section>
 
@@ -71,10 +72,14 @@
     Not a beginner intro. Not a framework deep-dive.<br/>
     High-leverage features most teams walk right past.
   </p>
+  <h1 class="fragment hidden-until-shown" style="margin-top:0.8em; color: var(--accent); font-size: 3em;">No AI!</h1>
   <aside class="notes">
-    You already know how to write a test. What I want to give you is
-    the features that change the way you think about what Playwright
-    even is — and all of them are same-week adoptable.
+    <ul>
+      <li>Not a beginner intro, not a framework deep-dive</li>
+      <li>You already know how to write a test</li>
+      <li>Goal: stop seeing Playwright as just a test runner</li>
+      <li>[advance] big "No AI!" appears — "Also: this presentation is AI-free :-)"</li>
+    </ul>
   </aside>
 </section>
 
@@ -91,10 +96,11 @@
     Every feature passes the "could you ship this next Monday?" test.
   </p>
   <aside class="notes">
-    Demos are in TypeScript and Java today, but every technique works in all four
-    Playwright bindings — Node, Java, Python, .NET. Where the API
-    hasn't landed in your binding yet, the companion repo has
-    the missing pieces. GitHub link at the end.
+    <ul>
+      <li>4 acts + a closer</li>
+      <li>Demos in TS &amp; Java; works in all 4 bindings (Node/Java/Python/.NET)</li>
+      <li>Repo fills the gaps — link at the end</li>
+    </ul>
   </aside>
 </section>
 
@@ -108,9 +114,11 @@
   <h2 class="act-title">Type Less. Test Better.</h2>
   <p class="lead">Reduce the typing and maintenance burden.<br/>Every feature is a one-liner add to an existing suite.</p>
   <aside class="notes">
-    Act 1 is about authoring - how to accomplish more while typing less. 
-    You already know how to write tests. These features mean you write fewer of the
-    bad kind.
+    <ul>
+      <li>Authoring: accomplish more while typing less</li>
+      <li>Fewer of the bad kind of tests</li>
+      <li>Each feature ≈ a one-line add to an existing suite</li>
+    </ul>
   </aside>
 </section>
 
@@ -140,8 +148,11 @@ page.getByRole(BUTTON, name("Subscribe"))
   </div>
   <p class="lead" style="margin-top:0.75em; font-size:0.85em;">One new popup = copy-pasting dismiss logic into every test that touches that page.</p>
   <aside class="notes">
-    Cookie banners, newsletter popups, interstitials block every test.
-    Most teams copy-paste dismiss logic into every test or wrap in try/catch.
+    <ul>
+      <li>Cookie banners / popups / interstitials block every test</li>
+      <li>Most teams copy-paste dismiss logic, or wrap in try/catch</li>
+      <li>Death by a thousand cuts</li>
+    </ul>
   </aside>
 </section>
 
@@ -172,8 +183,11 @@ page.addLocatorHandler(
   </div>
   <div class="takeaway">One line. Stack multiple handlers for sites with several popups.</div>
   <aside class="notes">
-    addLocatorHandler registers a handler that fires whenever that locator
-    appears — on any page, any navigation. Universal pain, one-line fix.
+    <ul>
+      <li>Register once → fires on every nav, every page, automatically</li>
+      <li>You never call it yourself</li>
+      <li>Stack multiple handlers for sites with several popups</li>
+    </ul>
   </aside>
 </section>
 
@@ -185,24 +199,31 @@ page.addLocatorHandler(
     <div>
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
+// Goal: delete the "Widget A" row
 await page.locator(
-  'table tr:nth-child(3) td:nth-child(2) button')
-  .click();
+  "//table[@id='inventory']/tbody/tr[3]/td[6]/button"
+).click();
+// "row 3" ...until someone inserts a row
       </code></pre>
     </div>
     <div>
       <div class="java-label">Java</div>
       <pre><code class="java" data-trim>
+// Goal: delete the "Widget A" row
 page.locator(
-    "table tr:nth-child(3) td:nth-child(2) button")
-    .click();
+  "//table[@id='inventory']/tbody/tr[3]/td[6]/button"
+).click();
+// "row 3" ...until someone inserts a row
       </code></pre>
     </div>
   </div>
-  <p class="lead" style="margin-top:0.75em; font-size:0.85em;">Your selector knows the DOM structure. The frontend team wraps a <code>&lt;div&gt;</code> in a <code>&lt;section&gt;</code> and 30 tests break.</p>
+  <p class="lead" style="margin-top:0.75em; font-size:0.85em;">You wanted the <em>"Widget A"</em> row — but you hard-coded row 3, cell 6. Insert a row or add a column and it points at the wrong thing.</p>
   <aside class="notes">
-    Teams write nth-child selectors because they don't know a better way.
-    Every UI refactor breaks them.
+    <ul>
+      <li>nth-child selectors know the whole DOM structure</li>
+      <li>Refactor (div → section) breaks 30 tests</li>
+      <li>Pure maintenance tax — behavior never changed</li>
+    </ul>
   </aside>
 </section>
 
@@ -237,11 +258,13 @@ page.getByRole(ROW)
   </p>
   <div class="takeaway">Reads like a sentence. Survives refactors that break CSS selectors.</div>
   <aside class="notes">
-    "The delete button inside the row that contains Widget A" — that's a
-    completely natural English description, and locator composition lets you
-    write it almost exactly that way, in Java too. This is the biggest sleeper
-    in Act 1 for experienced teams — a lot of you have been writing nth-child
-    selectors for years without knowing filter() even exists.
+    <ul>
+      <li>getByRole('row') → grab all the row elements</li>
+      <li>.filter(hasText: 'Widget A') → keep the first one containing "Widget A"</li>
+      <li>.getByRole('button', name: 'Delete') → the Delete button inside that row</li>
+      <li>.click()</li>
+      <li>Targets content, not position → no row/column index to break</li>
+    </ul>
   </aside>
 </section>
 
@@ -271,8 +294,11 @@ assertTrue(successBanner.isVisible());
   </div>
   <p class="lead" style="margin-top:0.75em; font-size:0.85em;">Too short = flaky. Too long = slow. Usually both in the same suite.</p>
   <aside class="notes">
-    Every Java Playwright suite has this. Arbitrary sleeps that are either
-    too short (flaky) or too long (slow). Usually both in the same suite.
+    <ul>
+      <li>click → waitForTimeout → check: every suite has it</li>
+      <li>The number is always wrong: too short (flaky) / too long (slow)</li>
+      <li>Usually both in the same suite</li>
+    </ul>
   </aside>
 </section>
 
@@ -301,9 +327,12 @@ assertThat(successBanner)
   </div>
   <div class="takeaway">Replace every sleep with the assertion itself. Faster AND flake-resistant.</div>
   <aside class="notes">
-    Web-first assertions auto-retry for the full action timeout — default 5s.
-    They're not a check, they're a wait. The assertion IS the wait.
-    If you take nothing else from Act 1, take this.
+    <ul>
+      <li><strong>The assertion IS the wait</strong> — retries to full timeout (default 5s)</li>
+      <li>Passes the instant it's true</li>
+      <li>Faster AND less flaky — from deleting code</li>
+      <li>Take this if nothing else</li>
+    </ul>
   </aside>
 </section>
 
@@ -331,8 +360,11 @@ assertThat(page.getByText("Saved")).isVisible();
   </div>
   <p class="lead" style="margin-top:0.75em; font-size:0.85em;">You're guessing how long the API takes. The right number today is wrong on a slow CI box tomorrow.</p>
   <aside class="notes">
-    Same problem as page.waitForTimeout() on DOM — but applied to network calls.
-    You're guessing at a delay instead of waiting for the actual signal.
+    <ul>
+      <li>Same trap as waitForTimeout — now on the network</li>
+      <li>Guessing a delay instead of waiting for the signal</li>
+      <li>Right on your laptop, wrong on a slow CI box</li>
+    </ul>
   </aside>
 </section>
 
@@ -365,9 +397,12 @@ assertThat(resp.status()).isEqualTo(200);
   </div>
   <div class="takeaway">Same "wait for the actual signal" mindset — applied to network instead of DOM.</div>
   <aside class="notes">
-    Wraps the action that triggers the request, returns when the matching
-    response arrives. Zero guessing, zero sleeping. Also pairs with
-    waitForRequest when you care about the outbound call.
+    <ul>
+      <li>Wrap the action → returns the moment the response lands</li>
+      <li>Get the response object → assert status</li>
+      <li>Zero guessing, zero sleeping</li>
+      <li>Sibling: waitForRequest (outbound call)</li>
+    </ul>
   </aside>
 </section>
 
@@ -397,9 +432,12 @@ dl.saveAs(Paths.get("report.csv"));
   </div>
   <div class="takeaway">Selenium-trained testers skip download tests because they assume they're hard. They're not.</div>
   <aside class="notes">
-    Many teams have zero download tests because Selenium has no first-class
-    download event. Playwright does — CDP surfaces it directly.
-    waitForDownload wraps the click, returns when the download starts.
+    <ul>
+      <li>Selenium had no download event → most teams skip these</li>
+      <li>Wrap the click → Download object → saveAs</li>
+      <li>Then assert on the actual file (CSV rows, open the PDF)</li>
+      <li>Works because Playwright controls the browser directly</li>
+    </ul>
   </aside>
 </section>
 
@@ -425,8 +463,11 @@ page.locator("input[type=file]")
   </div>
   <div class="takeaway">No real file picker needed. Works headless in CI.</div>
   <aside class="notes">
-    setInputFiles bypasses the OS file picker entirely.
-    Works in headless CI with no display. One line.
+    <ul>
+      <li>setInputFiles → point at the input, give it a path</li>
+      <li>Bypasses the OS file picker entirely</li>
+      <li>Works headless in CI, no display — one line</li>
+    </ul>
   </aside>
 </section>
 
@@ -435,8 +476,11 @@ page.locator("input[type=file]")
   <h2>Codegen</h2>
   <p class="lead" style="margin-top:1em;">Most teams don't use Codegen.<br/>It writes the tests you'd want to write — no AI needed!</p>
   <aside class="notes">
-    How many of you are using Codegen today? ... Most teams aren't, and
-    you're really missing out. Let me show you what you're missing.
+    <ul>
+      <li>Ask: who's using Codegen today? (most aren't)</li>
+      <li>Not AI — it's been in Playwright for years</li>
+      <li>"Let me show you what you're missing"</li>
+    </ul>
   </aside>
 </section>
 
@@ -447,12 +491,14 @@ page.locator("input[type=file]")
     <source src="img/codegen.mp4" type="video/mp4" />
   </video>
   <aside class="notes">
-    This is "npx playwright codegen", pointed at a URL and targeting Java.
-    On the left is a Chromium window; on the right is live Java code being
-    written as I click. Watch the locator priorities — role first, then
-    label, then text, then test-id. Codegen is writing the tests you'd want
-    to write yourself. And when it can't find a good locator, it falls back
-    gracefully instead of spitting out an nth-child nightmare.
+    <ul>
+      <li>npx playwright codegen &lt;url&gt; --target=java</li>
+      <li>Real Chromium left · live code right</li>
+      <li>Watch locator priority: role → label → text → test-id</li>
+      <li>Falls back gracefully — no nth-child nightmare</li>
+      <li>Use it as a locator-finder</li>
+      <li><em>▶ K = play/pause · R = restart</em></li>
+    </ul>
   </aside>
 </section>
 
@@ -466,10 +512,11 @@ page.locator("input[type=file]")
   <h2 class="act-title">Frontend Without a Backend</h2>
   <p class="lead">Test UI behavior without a working backend.<br/>Mock it, record it, freeze it, disconnect it.</p>
   <aside class="notes">
-    Act 2 is about isolating the frontend. Every feature here lets you
-    test UI behavior without depending on a real backend. Mock responses,
-    replay recorded traffic, freeze time, go offline, change the device.
-    All from your test code.
+    <ul>
+      <li>Isolate the frontend — test UI with no real backend</li>
+      <li>Mock / record / freeze time / go offline / change device</li>
+      <li>All from your test code — no backend team, no staging</li>
+    </ul>
   </aside>
 </section>
 
@@ -504,11 +551,12 @@ page.route("**/api/products",
 
   <div class="takeaway">Test every backend failure state without touching the backend.</div>
   <aside class="notes">
-    fulfill() returns a canned response. abort() simulates a network
-    failure. continue() with overrides rewrites the request in flight —
-    rewrite URLs, inject headers, swap body fields. Most teams know
-    fulfill and abort. The continue-with-overrides is the sleeper. Best way 
-    to test that your app can handle backend error states or edge cases
+    <ul>
+      <li>Intercept requests before they leave the browser</li>
+      <li>fulfill = canned 500 · abort = dead network</li>
+      <li>continue w/ overrides = sleeper (rewrite URL/headers/body in flight)</li>
+      <li>Best way to test backend failure states &amp; edge cases</li>
+    </ul>
   </aside>
 </section>
 
@@ -545,11 +593,12 @@ context.routeFromHAR(Paths.get("fixtures/api.har"),
   </div>
   <div class="takeaway">Commit the HAR. Your backend becomes optional for UI tests.</div>
   <aside class="notes">
-    (HTTP Archive file)
-    Record real traffic once, commit the HAR to source control,
-    replay it deterministically in CI. Pairs with setOffline for
-    fully hermetic tests. The update:true flag lets you refresh
-    periodically without manual recording.
+    <ul>
+      <li>HAR = HTTP Archive (a recording of traffic)</li>
+      <li>Record once → commit → replay forever, deterministic</li>
+      <li>Backend becomes optional; + setOffline = hermetic</li>
+      <li>update flag re-records when the API changes</li>
+    </ul>
   </aside>
 </section>
 
@@ -585,11 +634,12 @@ page.clock().fastForward(10_000);
   </div>
   <div class="takeaway">Test session expiry, countdowns, and scheduled jobs without waiting.</div>
   <aside class="notes">
-    Your session expires after thirty minutes? Fast-forward thirty-one.
-    Countdown timer? Freeze it at T-minus-five seconds and assert on the
-    warning UI. This covers all the JavaScript time APIs. No more waiting
-    in real time, and no more mocking Date in your app code just to make
-    your tests work.
+    <ul>
+      <li>Control time inside the browser</li>
+      <li>Session expiry → fast-forward 31 min</li>
+      <li>Countdown → freeze at T-5, assert the warning</li>
+      <li>Covers all JS time APIs — delete the Date mock in app code</li>
+    </ul>
   </aside>
 </section>
 
@@ -627,9 +677,12 @@ assertThat(page.getByText("Back online"))
   </div>
   <div class="takeaway">Offline UX is one line away. Test reconnection flows in CI.</div>
   <aside class="notes">
-    Most teams have never tested their offline state because it
-    seemed hard. It's one method call. Pair with routeFromHAR for
-    a fully hermetic offline test — no real network traffic at all.
+    <ul>
+      <li>One method call</li>
+      <li>off → reload → assert offline UI → on → assert recovery</li>
+      <li>Most teams have never tested this — felt hard, isn't</li>
+      <li>+ routeFromHAR = fully hermetic, zero real traffic</li>
+    </ul>
   </aside>
 </section>
 
@@ -669,10 +722,12 @@ ctx.grantPermissions(List.of("geolocation"));
   </div>
   <div class="takeaway">No Appium. No device farm. No separate suite.</div>
   <aside class="notes">
-    The leverage gap here: most teams run default desktop English UTC
-    because they assume everything else needs infrastructure they don't have.
-    They don't. This is a block of NewContextOptions.
-    Combine with playwright.devices() descriptors for a shorthand.
+    <ul>
+      <li>One options block: viewport, UA, locale, timezone, geo, dark mode</li>
+      <li>Leverage gap: teams default to desktop/English/UTC, assuming infra needed</li>
+      <li>No Appium, no device farm, no second suite</li>
+      <li>playwright.devices() = shorthand ("iPhone 14")</li>
+    </ul>
   </aside>
 </section>
 
@@ -681,10 +736,11 @@ ctx.grantPermissions(List.of("geolocation"));
   <h2 class="act-title">Backend Through the Browser</h2>
   <p class="lead">Flip the direction — use Playwright to reach the backend directly.<br/>Real auth, real session, no UI setup chain.</p>
   <aside class="notes">
-    Act 3 flips the direction. Instead of isolating the frontend from the
-    backend, we use the browser to reach the backend — borrow its session,
-    its CSRF token, its auth state. Most tools can't do this. Playwright can,
-    because it has a real browser and a real HTTP client in the same process.
+    <ul>
+      <li>Flip the direction: browser → backend, directly</li>
+      <li>Borrow the real session / CSRF token / auth state</li>
+      <li>Only Playwright: real browser + real HTTP client, same process</li>
+    </ul>
   </aside>
 </section>
 
@@ -726,10 +782,12 @@ page.navigate("/dashboard");
   </div>
   <div class="takeaway">Skip the UI setup chain. Tests that took 30s of clicks take 200ms.</div>
   <aside class="notes">
-    APIRequestContext is a full HTTP client baked into Playwright.
-    Key point: you're calling an endpoint that already exists — /api/users,
-    /api/orders, whatever your app already has. No new backend work required.
-    Skips the "navigate, click, fill, submit" setup chain.
+    <ul>
+      <li>APIRequestContext = full HTTP client baked in</li>
+      <li>POST to a pre-existing endpoint to seed, then navigate</li>
+      <li>30s of clicks → 200ms</li>
+      <li>No new backend work — endpoints already exist</li>
+    </ul>
   </aside>
 </section>
 
@@ -767,12 +825,12 @@ BrowserContext context = browser.newContext(
   </div>
   <div class="takeaway">Log in once per suite run. Every test starts already authenticated.</div>
   <aside class="notes">
-    Saves Cookies and LocalStorage
-    storageState() saves cookies and localStorage to a file.
-    Load it into any new context and that context is already logged in —
-    no UI login flow, no API call, just the session.
-    Commit auth.json to your test fixtures or regenerate it in CI setup.
-    If your app uses localStorage tokens, this catches those too — not just cookies.
+    <ul>
+      <li>Saves cookies AND localStorage to a JSON file</li>
+      <li>Log in once in setup → every test starts authenticated</li>
+      <li>No UI login flow, no API call — just the session restored</li>
+      <li>Catches token-in-localStorage, not just cookies</li>
+    </ul>
   </aside>
 </section>
 
@@ -797,12 +855,13 @@ const resp = await api.get('/api/account/settings');
 expect(resp.status()).toBe(200);
   </code></pre>
   <aside class="notes">
-    Let me walk through each step. First, a real browser login — no mocking,
-    no token injection, an actual session. Then page.evaluate() reaches into
-    the live DOM to grab the CSRF token. context.cookies() finds the session
-    cookie and passes it straight to APIRequestContext — no file needed. And
-    from here the browser is out of the picture; these are pure HTTP calls
-    carrying real auth.
+    <ul>
+      <li>For gnarly CSRF / custom-header auth</li>
+      <li>Real browser login (not mocked, not injected)</li>
+      <li>page.evaluate → CSRF from the DOM</li>
+      <li>context.cookies → session cookie</li>
+      <li>Hand both to API context → browser gone, pure authed HTTP</li>
+    </ul>
   </aside>
 </section>
 
@@ -828,10 +887,10 @@ APIResponse resp = api.get("/api/account/settings");
 assertThat(resp.status()).isEqualTo(200);
   </code></pre>
   <aside class="notes">
-    "Postman can't do this. Curl can't do this. REST Assured can't do this
-    without a huge auth-harness investment. Playwright can — because it's the
-    only tool in your stack with a real browser AND a real HTTP client
-    in the same process."
+    <ul>
+      <li>Same moves as TS, just more ceremony</li>
+      <li>evaluate → CSRF · cookies → session · build API context · hit endpoint</li>
+    </ul>
   </aside>
 </section>
 
@@ -844,11 +903,12 @@ assertThat(resp.status()).isEqualTo(200);
     with a real browser <em>and</em> a real HTTP client in the same process.
   </blockquote>
   <aside class="notes">
-    Postman can't do this. Curl can't do this. REST Assured can't do it
-    without bolting on a separate browser tool. Playwright can — because
-    it's the only thing in your stack with a real browser and a real HTTP
-    client in the same process. ... So now — what happens when something
-    goes wrong?
+    <ul>
+      <li>Postman / curl / REST Assured can't do this</li>
+      <li>(REST Assured would need a separate browser tool)</li>
+      <li>PW can — real browser + real HTTP client, same process</li>
+      <li>→ Now, what happens when something goes wrong?</li>
+    </ul>
   </aside>
 </section>
 
@@ -865,9 +925,11 @@ assertThat(resp.status()).isEqualTo(200);
     "Playwright remembers everything so you don't have to."
   </p>
   <aside class="notes">
-    Act 4 is where Playwright stops being just a test runner and starts
-    being a diagnostic layer for your whole stack. Everything here is about
-    one thing: reducing the time it takes to figure out what went wrong.
+    <ul>
+      <li>When a test fails — what do you actually see?</li>
+      <li>PW = diagnostic layer for the whole stack</li>
+      <li>"Remembers everything so you don't have to"</li>
+    </ul>
   </aside>
 </section>
 
@@ -909,14 +971,12 @@ context.tracing().stop(new Tracing.StopOptions()
     Open at <code>trace.playwright.dev</code> — no install, send a URL to a colleague.
   </div>
   <aside class="notes">
-    What I'm doing here is running a test that fails on purpose, with
-    tracing turned on. Now I open the trace, scrub the timeline, and you can
-    see a full DOM snapshot for every single action — and I can filter the
-    console and network logs down to each individual action.
-
-    And here's the best part: trace.playwright.dev. You upload the zip, share
-    the URL, and a colleague can scrub through your trace in their own browser
-    with nothing installed at all. This is the workhorse of Act 4.
+    <ul>
+      <li>start/stop tracing → zip; usually configured on retry only</li>
+      <li>Panels next: Actions, Screenshots, Errors, Console, Network</li>
+      <li>⭐ trace.playwright.dev — drag the zip / send a link, nothing installed</li>
+      <li>Workhorse of the act</li>
+    </ul>
   </aside>
 </section>
 
@@ -924,30 +984,58 @@ context.tracing().stop(new Tracing.StopOptions()
   <div class="act-badge">Act 4</div>
   <h2>Trace Viewer — Actions</h2>
   <img src="img/actions.png" alt="Trace Viewer actions panel" style="max-height:580px; max-width:100%; width:auto;" />
+  <aside class="notes">
+    <ul>
+      <li>Every action your test took, in order</li>
+      <li>Click one → the viewer jumps to that moment</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
   <div class="act-badge">Act 4</div>
   <h2>Trace Viewer — Screenshots</h2>
   <img src="img/screenshots.png" alt="Trace Viewer screenshots panel" style="max-height:580px; max-width:100%; width:auto;" />
+  <aside class="notes">
+    <ul>
+      <li>Full DOM snapshot per action — not a video, inspectable</li>
+      <li>Open DevTools on a moment from 3 days ago — a time machine</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
   <div class="act-badge">Act 4</div>
   <h2>Trace Viewer — Errors</h2>
   <img src="img/errors.png" alt="Trace Viewer errors panel" style="max-height:580px; max-width:100%; width:auto;" />
+  <aside class="notes">
+    <ul>
+      <li>Surfaced right where it happened in the timeline</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
   <div class="act-badge">Act 4</div>
   <h2>Trace Viewer — Console</h2>
   <img src="img/console.png" alt="Trace Viewer console panel" style="max-height:580px; max-width:100%; width:auto;" />
+  <aside class="notes">
+    <ul>
+      <li>Every log, filtered down to the action that produced it</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
   <div class="act-badge">Act 4</div>
   <h2>Trace Viewer — Network</h2>
   <img src="img/network.png" alt="Trace Viewer network panel" style="max-height:580px; max-width:100%; width:auto;" />
+  <aside class="notes">
+    <ul>
+      <li>Every request, tied to the action that fired it</li>
+      <li>Failing test? The 500 sits right next to the click</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
@@ -981,6 +1069,13 @@ PWDEBUG=1 mvn test -Dtest=MyFailingTest
   </div>
   <p style="font-size:0.85em; color:var(--muted); margin-top:0.75em; text-align:center;">Step through actions · Inspect live DOM · Run JS · Pick locators</p>
   <div class="takeaway">Trace Viewer = after-the-fact. Inspector = in-the-moment.</div>
+  <aside class="notes">
+    <ul>
+      <li>Drop page.pause() anywhere → test freezes, Inspector opens</li>
+      <li>PWDEBUG=1 = same thing, no code change</li>
+      <li>Trace = the black box recorder; Inspector = live</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
@@ -989,11 +1084,11 @@ PWDEBUG=1 mvn test -Dtest=MyFailingTest
   <p style="font-size:0.85em; color:var(--muted); margin-bottom:0.5em;">Step through, inspect the DOM, run JS, pick locators — all against a live paused test.</p>
   <img src="img/inspector.png" alt="Playwright Inspector" style="max-height:530px; max-width:100%; width:auto;" />
   <aside class="notes">
-    This is for when the trace isn't enough — when you need to poke at live
-    state. You drop page.pause(), run the test, and the Inspector opens. From
-    there you can step through, inspect the DOM, and run arbitrary JavaScript
-    against the paused page. And PWDEBUG=1 is the one-liner shortcut — no code
-    change needed at all.
+    <ul>
+      <li>For when the trace isn't enough — poke at live state</li>
+      <li>Step through · inspect live DOM · run JS · pick locators</li>
+      <li>All against a paused, running test</li>
+    </ul>
   </aside>
 </section>
 
@@ -1023,12 +1118,12 @@ await expect(page).toHaveScreenshot(
   </div>
   <div class="takeaway"><code>toHaveScreenshot()</code> handles baseline management automatically — built in to @playwright/test.</div>
   <aside class="notes">
-    On the left, page.screenshot() is the primitive — it just saves bytes to
-    disk. On the right, toHaveScreenshot() wraps that with baseline management:
-    the first run saves the baseline, every run after that diffs against it,
-    and on failure you get three images — expected, actual, and the diff. The
-    catch is that this is Node and TypeScript only; it lives in @playwright/test,
-    not the core library. So let me show you how to get the same thing in Java.
+    <ul>
+      <li>page.screenshot = primitive (bytes to disk)</li>
+      <li>toHaveScreenshot = baseline mgmt + pixel-diff</li>
+      <li>First run saves; after, diffs; failure = expected/actual/diff</li>
+      <li>Node/TS only — lives in @playwright/test</li>
+    </ul>
   </aside>
 </section>
 
@@ -1062,13 +1157,13 @@ VisualAssert.assertScreenshot(
   </p>
   <div class="takeaway">Works in Java today. Grab the ~60 lines of code from the repo.</div>
   <aside class="notes">
-    page.screenshot() is identical across all four bindings. Java just doesn't
-    ship toHaveScreenshot(), so you write the wrapper yourself — about eighty
-    lines, plus the image-comparison library from romankh3, and you've got
-    baseline management, pixel-diffing, and a diff image on failure. The full
-    source is in the repo, under vrt — Java, Python, and .NET are all there.
-    And that's really the point: the primitive is good enough that filling the
-    gap yourself is a Saturday afternoon.
+    <ul>
+      <li>page.screenshot identical across all 4 bindings</li>
+      <li>Java lacks toHaveScreenshot → write ~80-line wrapper</li>
+      <li>+ romankh3 image-comparison library</li>
+      <li>Repo vrt/: Java, Python, .NET</li>
+      <li>Primitive's good enough → the gap is a Saturday</li>
+    </ul>
   </aside>
 </section>
 
@@ -1117,11 +1212,12 @@ assertThat(errors).isEmpty();
   </div>
   <div class="takeaway">Catches "passing test, silently broken app." Wire once, benefit everywhere.</div>
   <aside class="notes">
-    Here's the problem this solves: a test can pass green while the page is
-    throwing JavaScript errors, failing XHRs, and swallowing unhandled
-    exceptions — because you never asserted on any of them. Wire these three
-    listeners once in your base class, and every one of those signals becomes
-    part of your failure context automatically.
+    <ul>
+      <li>Passing test, silently broken app — you never asked</li>
+      <li>Wire 3 listeners once in base class: console error / pageerror / requestfailed</li>
+      <li>Assert zero, or attach to failure output</li>
+      <li>Cheapest insurance in the talk</li>
+    </ul>
   </aside>
 </section>
 
@@ -1152,11 +1248,12 @@ context.setExtraHTTPHeaders(Map.of(
     </div>
   </div>
   <aside class="notes">
-    This is my favorite thing in the whole talk. traceparent is a W3C
-    standard. If your APM supports OpenTelemetry — Datadog, New Relic, Splunk,
-    Honeycomb, Dynatrace — this works unchanged. One header, and your test run
-    stitches right into your production observability. Let me show you what
-    that looks like in Dynatrace.
+    <ul>
+      <li>My favorite thing in the talk</li>
+      <li>One W3C header on the context → every request carries the trace ID</li>
+      <li>OTel APMs just work: Datadog / New Relic / Splunk / Honeycomb / Dynatrace</li>
+      <li>Test run stitches into prod observability — show Dynatrace</li>
+    </ul>
   </aside>
 </section>
 
@@ -1165,9 +1262,10 @@ context.setExtraHTTPHeaders(Map.of(
   <h2>The trace — beginning</h2>
   <img src="img/dynatrace-1.png" alt="Dynatrace distributed trace — beginning" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
-    Here's the top of the trace — the initial request chain. That traceparent
-    header is what ties this Playwright test to this exact distributed trace
-    in Dynatrace.
+    <ul>
+      <li>Top of the trace — the initial request chain</li>
+      <li>traceparent ties this test ↔ this exact distributed trace</li>
+    </ul>
   </aside>
 </section>
 
@@ -1176,9 +1274,10 @@ context.setExtraHTTPHeaders(Map.of(
   <h2>The trace — middle</h2>
   <img src="img/dynatrace-2.png" alt="Dynatrace distributed trace — middle" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
-    In the middle of the trace you can see the downstream service calls, the
-    database queries, the cache operations — and all of this is what one
-    single Playwright test triggered.
+    <ul>
+      <li>Downstream service calls, DB queries, cache ops</li>
+      <li>All triggered by one test clicking one button</li>
+    </ul>
   </aside>
 </section>
 
@@ -1187,10 +1286,11 @@ context.setExtraHTTPHeaders(Map.of(
   <h2>The trace — end</h2>
   <img src="img/dynatrace-3.png" alt="Dynatrace distributed trace — end" style="max-height:580px; max-width:100%; width:auto;" />
   <aside class="notes">
-    And here's the end of the trace — the full picture, every service, every
-    span, end to end. You know which backend call your test triggered. You
-    know which service it hit. You know how long it took. You know if it
-    caused an error downstream. All from one header.
+    <ul>
+      <li>Full picture: every service, every span, end to end</li>
+      <li>Which call · which service · how long · errors downstream</li>
+      <li>All from one header — that's a production-grade diagnosis</li>
+    </ul>
   </aside>
 </section>
 
@@ -1201,9 +1301,11 @@ context.setExtraHTTPHeaders(Map.of(
     But here's one more thing you can do with Playwright.
   </blockquote>
   <aside class="notes">
-    Everything you've seen so far, you can ship on Monday. But version 1.59
-    shipped a screencast API — and I want to show you one more thing, something
-    I built with it.
+    <ul>
+      <li>All 4 acts ship Monday</li>
+      <li>But one more thing — 1.59 shipped a screencast API</li>
+      <li>I built something with it</li>
+    </ul>
   </aside>
 </section>
 
@@ -1257,10 +1359,23 @@ context.setExtraHTTPHeaders(Map.of(
     <text x="695" y="127" text-anchor="middle" fill="#10b981" font-size="15" font-family="system-ui,sans-serif" font-weight="700">Dashboard</text>
     <text x="695" y="150" text-anchor="middle" fill="#737373" font-size="12" font-family="system-ui,sans-serif">React · :5173</text>
   </svg>
+  <aside class="notes">
+    <ul>
+      <li>Idea: watch every CI browser live</li>
+      <li>Tests → JPEG frames over WebSocket → Node relay → React dashboard</li>
+      <li>3 processes, that's the whole system</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
   <img src="img/playwright-dashboard.png" alt="Playwright screencast dashboard" style="max-height:620px; max-width:100%; width:auto; border:3px solid var(--border); border-radius:8px;" />
+  <aside class="notes">
+    <ul>
+      <li>A live tile per running test</li>
+      <li>See what every browser is doing, right now</li>
+    </ul>
+  </aside>
 </section>
 
 <section>
@@ -1268,6 +1383,12 @@ context.setExtraHTTPHeaders(Map.of(
   <video data-autoplay muted controls style="width:100%; max-height:580px; border:3px solid var(--border); border-radius:8px;">
     <source src="img/test-page.mp4" type="video/mp4" />
   </video>
+  <aside class="notes">
+    <ul>
+      <li>A test page running — this is what gets streamed</li>
+      <li><em>▶ K = play/pause · R = restart</em></li>
+    </ul>
+  </aside>
 </section>
 
 <section>
@@ -1275,6 +1396,12 @@ context.setExtraHTTPHeaders(Map.of(
   <video data-autoplay muted controls style="width:100%; max-height:580px; border:3px solid var(--border); border-radius:8px;">
     <source src="img/dashboard-in-action.mp4" type="video/mp4" />
   </video>
+  <aside class="notes">
+    <ul>
+      <li>Dashboard picking it up live, tiling multiple tests as they run</li>
+      <li><em>▶ K = play/pause · R = restart</em></li>
+    </ul>
+  </aside>
 </section>
 
 <section>
@@ -1322,12 +1449,12 @@ page.screencast().start(
   </p>
   <p style="font-style:italic; color:var(--accent); font-size:0.9em; margin-top:1em;">See exactly what every browser is doing in CI — live, while it's happening.</p>
   <aside class="notes">
-    Architecture: Playwright tests stream frames to a Node relay over
-    WebSocket. React dashboard subscribes and renders tiles.
-    onFrame and path coexist — same call, live streaming AND saved video.
-    The whole thing is ~500 lines. I built it in a few days.
-    That's the point: the primitives are now good enough that
-    things that felt impossible are a Saturday.
+    <ul>
+      <li>Open WebSocket → screencast.start with onFrame → ship frames</li>
+      <li>onFrame + path together = live stream AND saved file</li>
+      <li>~500 lines, a few days</li>
+      <li>Thesis: the floor got high enough to build the "impossible"</li>
+    </ul>
   </aside>
 </section>
 
@@ -1362,17 +1489,17 @@ page.screencast().start(
     </div>
   </div>
   <aside class="notes">
-    Before I take your questions, I'm curious — what's the weirdest thing
-    YOU'VE automated? I'd genuinely love to hear what you've built.
-
-    (Quick reference for likely questions:)
-    — CI compatibility: works with any CI, you just need Node/Java/Python/.NET
-    — Flakiness at scale: web-first assertions plus waitForResponse eliminate
-      most flakiness; use retries sparingly
-    — Java vs Node parity: about 90% there, with small gaps — toHaveScreenshot,
-      and some newer APIs land in Node first
-    — MCP/Agents: there's a Playwright MCP server, Anthropic ships it —
-      Claude can drive a browser directly now
+    <ul>
+      <li>Prompt: "What's the weirdest thing YOU'VE automated?" (don't say "any questions?")</li>
+      <li>Links: repo · LinkedIn · Go Forth and Test · feedback QR</li>
+    </ul>
+    <p><strong>Ready answers:</strong></p>
+    <ul>
+      <li>Any CI — just need a runtime (Node/Java/Python/.NET)</li>
+      <li>Flakiness → web-first + waitForResponse; retries sparingly + trace on retry</li>
+      <li>Java ~90% parity (toHaveScreenshot gap, Node-first APIs)</li>
+      <li>MCP — Claude can drive a browser directly now</li>
+    </ul>
   </aside>
 </section>
 
@@ -1410,6 +1537,16 @@ page.screencast().start(
 
   Reveal.on('ready', e => updateCenter(e.indexh));
   Reveal.on('slidechanged', e => updateCenter(e.indexh));
+
+  // Presenter video controls — K: play/pause, R: restart
+  Reveal.addKeyBinding({ keyCode: 75, key: 'K', description: 'Play / pause video' }, () => {
+    const v = Reveal.getCurrentSlide().querySelector('video');
+    if (v) v.paused ? v.play() : v.pause();
+  });
+  Reveal.addKeyBinding({ keyCode: 82, key: 'R', description: 'Restart video' }, () => {
+    const v = Reveal.getCurrentSlide().querySelector('video');
+    if (v) { v.currentTime = 0; v.play(); }
+  });
 </script>
 </body>
 </html>
