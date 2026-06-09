@@ -32,6 +32,9 @@
       <li>Show of hands: 1+ Playwright test in prod → 10+ → 100+</li>
       <li>"That's exactly who I built this talk for"</li>
       <li>Promise: everything ships Monday</li>
+      <li>Housekeeping: hold questions to the END</li>
+      <li>Don't take notes — slides &amp; every link are on the LAST slide</li>
+      <li>Instead, as I talk ask yourself: "which of these solves a problem I didn't know I had?"</li>
     </ul>
   </aside>
 </section>
@@ -50,6 +53,7 @@
         <li>14 years building test automation frameworks</li>
         <li>Focused on automation infrastructure, tooling, and helping teams level up</li>
         <li>Teach coding camps for middle &amp; high school students</li>
+        <li><strong>Not a Playwright employee</strong> — mid-migration of hundreds of tests with my team, learning as I go</li>
       </ul>
     </div>
     <div style="text-align:center;">
@@ -61,6 +65,8 @@
       <li>Senior SDET @ Ramsey · 14 yrs building frameworks</li>
       <li>Teach kids to code — one-sentence-usefulness bar</li>
       <li>That's my family</li>
+      <li><strong>Say it clearly: I do NOT work for Playwright.</strong> I'm migrating hundreds of tests right now with my team, learning the best ways to leverage it</li>
+      <li>That's the lens — real-world, in the trenches, not a vendor pitch</li>
     </ul>
   </aside>
 </section>
@@ -95,10 +101,17 @@
   <p class="takeaway" style="margin-top:1.5em;">
     Every feature passes the "could you ship this next Monday?" test.
   </p>
+  <p style="margin-top:1.1em; font-size:0.95em; color:var(--accent);">
+    As I go, ask yourself: <em>which of these solves a problem I didn't know I had?</em>
+  </p>
+  <p style="margin-top:0.4em; font-size:0.62em; color:var(--muted);">
+    Hold questions for the end · every slide &amp; link is on the final slide — no need to take notes
+  </p>
   <aside class="notes">
     <ul>
       <li>4 acts + a closer</li>
       <li>Demos in TS &amp; Java; works in all 4 bindings (Node/Java/Python/.NET)</li>
+      <li>Say it out loud: questions at the END, all links on the LAST slide, don't scramble to take notes</li>
       <li>Repo fills the gaps — link at the end</li>
     </ul>
   </aside>
@@ -877,6 +890,7 @@ BrowserContext context = browser.newContext(
       <li>Log in once in setup → every test starts authenticated</li>
       <li>No UI login flow, no API call — just the session restored</li>
       <li>Catches token-in-localStorage, not just cookies</li>
+      <li>CAVEAT: highly parallel? one account can't hold 100+ live sessions — use a pool of users / per-worker logins</li>
     </ul>
   </aside>
 </section>
@@ -1516,31 +1530,38 @@ page.screencast().start(
 <section>
   <h2>Questions?</h2>
   <p class="lead">Also - what's the weirdest thing you've automated?</p>
-  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1.5em; margin-top:1.5em; text-align:center;">
+  <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1.5em; margin-top:1em; text-align:center;">
     <div>
       <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">Playwright Demos Repo</p>
-      <img src="img/github.svg" style="width:130px; height:130px;" />
+      <img src="img/github.svg" style="width:104px; height:104px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">github.com/kroe761/playwright-demos</p>
     </div>
     <div>
       <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">LinkedIn<br/>&nbsp;</p>
-      <img src="img/linkedin.svg" style="width:130px; height:130px;" />
+      <img src="img/linkedin.svg" style="width:104px; height:104px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">linkedin.com/in/kroe761</p>
     </div>
     <div>
       <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">"Go Forth and Test" Blog</p>
-      <img src="img/blog.svg" style="width:130px; height:130px;" />
+      <img src="img/blog.svg" style="width:104px; height:104px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">goforthandtest.com</p>
     </div>
     <div>
       <p style="font-size:0.75em; color:var(--accent); font-weight:700; margin-bottom:0.5em;">Session Feedback</p>
-      <img src="img/feedback-qr.svg" style="width:130px; height:130px;" />
+      <img src="img/feedback-qr.svg" style="width:104px; height:104px;" />
       <p style="font-size:0.6em; color:var(--muted); margin-top:0.4em;">QA or the Highway</p>
+    </div>
+  </div>
+  <div style="text-align:center; margin-top:0.8em;">
+    <div style="background:#fff; padding:0 24px; border-radius:6px; margin:0 auto; overflow:hidden; display:inline-block;">
+      <img src="img/ramsey-primary.png" alt="Ramsey Solutions" style="max-height:150px; max-width:100%; display:block; margin:-10px 0;" />
     </div>
   </div>
   <aside class="notes">
     <ul>
+      <li>Now taking questions (you held them — thank you!)</li>
       <li>Prompt: "What's the weirdest thing YOU'VE automated?" (don't say "any questions?")</li>
+      <li>Plug Ramsey Solutions — what we do, that I'm here representing them</li>
       <li>Links: repo · LinkedIn · Go Forth and Test · feedback QR</li>
     </ul>
     <p><strong>Ready answers:</strong></p>
@@ -1551,13 +1572,6 @@ page.screencast().start(
       <li>MCP — Claude can drive a browser directly now</li>
     </ul>
   </aside>
-</section>
-
-<section style="display:flex; align-items:center; justify-content:center; height:100%;">
-  <h1 style="color: var(--accent); font-size: 3.5em; text-align:center; line-height:1.3;">
-    Go Forth and<br/>
-    <span style="font-family: 'Stay Dreaming', cursive; color: #60a5fa; font-size: 1.8em; font-weight: 400;">Automate</span><span style="font-family: 'Stay Dreaming', cursive; color: #60a5fa; font-size: 1.8em; font-weight: 400;">!</span>
-  </h1>
 </section>
 
 
