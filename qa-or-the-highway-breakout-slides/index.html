@@ -562,6 +562,49 @@ page.route("**/api/products",
 
 <section>
   <div class="act-badge">Act 2</div>
+  <h2><code>context.setOffline(true)</code></h2>
+  <h3>Test your offline experience</h3>
+  <div class="two-col">
+    <div>
+      <div class="ts-label">TypeScript</div>
+      <pre><code class="typescript" data-trim>
+await context.setOffline(true);
+await page.reload();
+await expect(page.getByText("You're offline"))
+  .toBeVisible();
+
+await context.setOffline(false);
+await expect(page.getByText('Back online'))
+  .toBeVisible();
+      </code></pre>
+    </div>
+    <div>
+      <div class="java-label">Java</div>
+      <pre><code class="java" data-trim>
+context.setOffline(true);
+page.reload();
+assertThat(page.getByText("You're offline"))
+    .isVisible();
+
+context.setOffline(false);
+assertThat(page.getByText("Back online"))
+    .isVisible();
+      </code></pre>
+    </div>
+  </div>
+  <div class="takeaway">Offline UX is one line away. Test reconnection flows in CI.</div>
+  <aside class="notes">
+    <ul>
+      <li>One method call</li>
+      <li>off → reload → assert offline UI → on → assert recovery</li>
+      <li>Most teams have never tested this — felt hard, isn't</li>
+      <li>+ routeFromHAR = fully hermetic, zero real traffic</li>
+    </ul>
+  </aside>
+</section>
+
+<section>
+  <div class="act-badge">Act 2</div>
   <h2><code>routeFromHAR()</code></h2>
   <h3>Replay tests against a recorded backend</h3>
   <div class="two-col">
@@ -639,49 +682,6 @@ page.clock().fastForward(10_000);
       <li>Session expiry → fast-forward 31 min</li>
       <li>Countdown → freeze at T-5, assert the warning</li>
       <li>Covers all JS time APIs — delete the Date mock in app code</li>
-    </ul>
-  </aside>
-</section>
-
-<section>
-  <div class="act-badge">Act 2</div>
-  <h2><code>context.setOffline(true)</code></h2>
-  <h3>Test your offline experience</h3>
-  <div class="two-col">
-    <div>
-      <div class="ts-label">TypeScript</div>
-      <pre><code class="typescript" data-trim>
-await context.setOffline(true);
-await page.reload();
-await expect(page.getByText("You're offline"))
-  .toBeVisible();
-
-await context.setOffline(false);
-await expect(page.getByText('Back online'))
-  .toBeVisible();
-      </code></pre>
-    </div>
-    <div>
-      <div class="java-label">Java</div>
-      <pre><code class="java" data-trim>
-context.setOffline(true);
-page.reload();
-assertThat(page.getByText("You're offline"))
-    .isVisible();
-
-context.setOffline(false);
-assertThat(page.getByText("Back online"))
-    .isVisible();
-      </code></pre>
-    </div>
-  </div>
-  <div class="takeaway">Offline UX is one line away. Test reconnection flows in CI.</div>
-  <aside class="notes">
-    <ul>
-      <li>One method call</li>
-      <li>off → reload → assert offline UI → on → assert recovery</li>
-      <li>Most teams have never tested this — felt hard, isn't</li>
-      <li>+ routeFromHAR = fully hermetic, zero real traffic</li>
     </ul>
   </aside>
 </section>
