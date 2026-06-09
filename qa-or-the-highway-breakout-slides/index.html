@@ -695,11 +695,11 @@ page.clock().fastForward(10_000);
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
 const ctx = await browser.newContext({
-  viewport: { width: 390, height: 844 },
-  userAgent: 'Mozilla/5.0 (iPhone ...)',
+  ...devices['iPhone 13'],
   locale: 'ja-JP',
   timezoneId: 'Asia/Tokyo',
-  geolocation: { latitude: 35.6595, longitude: 139.7004 },
+  geolocation: {
+    latitude: 35.6595, longitude: 139.7004 },
   colorScheme: 'dark',
 });
 await ctx.grantPermissions(['geolocation']);
@@ -710,7 +710,8 @@ await ctx.grantPermissions(['geolocation']);
       <pre><code class="java" data-trim>
 BrowserContext ctx = browser.newContext(
     new Browser.NewContextOptions()
-        .setViewportSize(390, 844)
+        .setViewportSize(390, 844)        // iPhone 13
+        .setDeviceScaleFactor(3)
         .setUserAgent("Mozilla/5.0 (iPhone ...)")
         .setLocale("ja-JP")
         .setTimezoneId("Asia/Tokyo")
@@ -726,7 +727,8 @@ ctx.grantPermissions(List.of("geolocation"));
       <li>One options block: viewport, UA, locale, timezone, geo, dark mode</li>
       <li>Leverage gap: teams default to desktop/English/UTC, assuming infra needed</li>
       <li>No Appium, no device farm, no second suite</li>
-      <li>playwright.devices() = shorthand ("iPhone 14")</li>
+      <li>TS: spread devices['iPhone 13'] — viewport/UA/scale/touch in one line</li>
+      <li>Java: no devices[] registry → choose the viewport &amp; specs yourself</li>
     </ul>
   </aside>
 </section>
@@ -793,7 +795,52 @@ page.navigate("/dashboard");
 
 <section>
   <div class="act-badge">Act 3</div>
-  <h2>Reuse your session across tests</h2>
+  <h2><code>context/page.request</code></h2>
+  <h3>Call the API with the browser's session — no scraping</h3>
+  <div class="two-col">
+    <div>
+      <div class="ts-label">TypeScript</div>
+      <pre><code class="typescript" data-trim>
+// Log in once, in the browser
+const context = await browser.newContext();
+const page = await context.newPage();
+await page.goto('/login');   // ...sign in...
+
+// Same context → API calls carry its cookies
+const resp = await context.request
+  .get('/api/account/settings');
+expect(resp.status()).toBe(200);
+      </code></pre>
+    </div>
+    <div>
+      <div class="java-label">Java</div>
+      <pre><code class="java" data-trim>
+// Log in once, in the browser
+BrowserContext context = browser.newContext();
+Page page = context.newPage();
+page.navigate("/login");   // ...sign in...
+
+// Same context → API calls carry its cookies
+APIResponse resp = context.request()
+    .get("/api/account/settings");
+assertThat(resp.status()).isEqualTo(200);
+      </code></pre>
+    </div>
+  </div>
+  <div class="takeaway">Logged in in the browser? Your API calls are too — the cookie jar is shared.</div>
+  <aside class="notes">
+    <ul>
+      <li>context.request / page.request reuse the browser context's cookie jar</li>
+      <li>Log in once in the browser → API calls carry the session automatically</li>
+      <li>Cookies are shared; localStorage is NOT (never sent over HTTP)</li>
+      <li>The easy path — next slide is for when you need more (e.g. a CSRF header)</li>
+    </ul>
+  </aside>
+</section>
+
+<section>
+  <div class="act-badge">Act 3</div>
+  <h2>Reuse your session</h2>
   <h3>Log in once. Never log in again.</h3>
   <div class="two-col">
     <div>
@@ -838,8 +885,10 @@ BrowserContext context = browser.newContext(
   <div class="act-badge">Act 3</div>
   <h2>For more complicated auth...</h2>
   <h3>Browser login → scrape what you need → call the backend directly</h3>
-  <div class="ts-label">TypeScript</div>
-  <pre><code class="typescript" data-trim>
+  <div style="position:relative;">
+    <!-- TypeScript (base layer) -->
+    <div class="ts-label">TypeScript</div>
+    <pre><code class="typescript" data-trim>
 // Scrape CSRF and session cookie
 const csrf = await page.evaluate(() => document.querySelector('meta[name="csrf-token"]').content);
 const session = (await context.cookies()).find(c => c.name === 'session');
@@ -853,24 +902,12 @@ const api = await request.newContext({
 // Hit the backend directly — no more UI
 const resp = await api.get('/api/account/settings');
 expect(resp.status()).toBe(200);
-  </code></pre>
-  <aside class="notes">
-    <ul>
-      <li>For gnarly CSRF / custom-header auth</li>
-      <li>Real browser login (not mocked, not injected)</li>
-      <li>page.evaluate → CSRF from the DOM</li>
-      <li>context.cookies → session cookie</li>
-      <li>Hand both to API context → browser gone, pure authed HTTP</li>
-    </ul>
-  </aside>
-</section>
+    </code></pre>
 
-<section class="wow-slide">
-  <div class="act-badge">Act 3</div>
-  <h2>For more complicated auth...</h2>
-  <h3>Browser login → scrape what you need → call the backend directly</h3>
-  <div class="java-label">Java</div>
-  <pre><code class="java" data-trim>
+    <!-- Java (fades in over the TS on advance — no slide change) -->
+    <div class="fragment hidden-until-shown" style="position:absolute; top:0; left:0; right:0;">
+      <div class="java-label" style="background:var(--code-bg);">Java</div>
+      <pre><code class="java" data-trim>
 // Scrape CSRF and session cookie
 String csrf = (String) page.evaluate("document.querySelector('meta[name=\"csrf-token\"]').content");
 Optional&lt;Cookie&gt; session = context.cookies().stream()
@@ -885,11 +922,16 @@ APIRequestContext api = playwright.request().newContext(
 // Hit the backend directly — no more UI
 APIResponse resp = api.get("/api/account/settings");
 assertThat(resp.status()).isEqualTo(200);
-  </code></pre>
+      </code></pre>
+    </div>
+  </div>
   <aside class="notes">
     <ul>
-      <li>Same moves as TS, just more ceremony</li>
-      <li>evaluate → CSRF · cookies → session · build API context · hit endpoint</li>
+      <li>For gnarly CSRF / custom-header auth</li>
+      <li>Real browser login (not mocked, not injected)</li>
+      <li>page.evaluate → CSRF from the DOM · context.cookies → session</li>
+      <li>Hand both to API context → browser gone, pure authed HTTP</li>
+      <li>[advance] Java fades in over the TypeScript — same moves, more ceremony</li>
     </ul>
   </aside>
 </section>
@@ -1073,6 +1115,8 @@ PWDEBUG=1 mvn test -Dtest=MyFailingTest
     <ul>
       <li>Drop page.pause() anywhere → test freezes, Inspector opens</li>
       <li>PWDEBUG=1 = same thing, no code change</li>
+      <li>PWDEBUG=1 also runs headed &amp; disables timeouts — poke around as long as you want</li>
+      <li>Works in every binding: Node, Java, Python, .NET (not just TS)</li>
       <li>Trace = the black box recorder; Inspector = live</li>
     </ul>
   </aside>
@@ -1087,6 +1131,10 @@ PWDEBUG=1 mvn test -Dtest=MyFailingTest
     <ul>
       <li>For when the trace isn't enough — poke at live state</li>
       <li>Step through · inspect live DOM · run JS · pick locators</li>
+      <li>"Pick locator" → click an element, get the recommended locator back</li>
+      <li>Live actionability log — shows WHY an action is waiting/stuck</li>
+      <li>Resume / step-over controls in the toolbar</li>
+      <li>Same Inspector in all 4 languages — Node, Java, Python, .NET</li>
       <li>All against a paused, running test</li>
     </ul>
   </aside>
@@ -1129,10 +1177,10 @@ await expect(page).toHaveScreenshot(
 
 <section>
   <div class="act-badge">Act 4</div>
-  <h2>Visual regression —<br/>Java</h2>
+  <h2>Visual regression —<br/>the other bindings</h2>
   <div class="two-col">
     <div>
-      <p style="font-size:0.8em; color:var(--muted);">Save the baseline</p>
+      <p style="font-size:0.8em; color:var(--muted);">The primitive — same in every binding</p>
       <pre><code class="java" data-trim>
 // First run — saves baseline to disk
 page.screenshot(new Page.ScreenshotOptions()
@@ -1141,28 +1189,27 @@ page.screenshot(new Page.ScreenshotOptions()
       </code></pre>
     </div>
     <div>
-      <p style="font-size:0.8em; color:var(--muted);">Assert against it</p>
+      <p style="font-size:0.8em; color:var(--muted);">Wrap it yourself — example</p>
       <pre><code class="java" data-trim>
-// ~60 lines + one image library
-VisualAssert.assertScreenshot(
-    page, "checkout");
-// Subsequent: pixel-diff
-// On failure: expected/actual/diff triple
+// a ~60-line helper around the primitive
+assertScreenshot(page, "checkout");
+// first run saves · then pixel-diffs
+// on failure: expected / actual / diff
       </code></pre>
     </div>
   </div>
   <p style="font-size:0.65em; color:var(--muted); margin-top:0.5em;">
-    Diff library: <code>com.github.romankh3 / image-comparison</code><br/>
-    Full source: <code>github.com/kroe761/playwright-demos/tree/main/vrt</code> (plus Python and C#)
+    Just an example. Full source — <strong>Java, Python &amp; .NET</strong> — in the repo:<br/>
+    <code>github.com/kroe761/playwright-demos/tree/main/vrt</code>
   </p>
-  <div class="takeaway">Works in Java today. Grab the ~60 lines of code from the repo.</div>
+  <div class="takeaway">No built-in helper? It's a tiny wrapper — grab it from the repo.</div>
   <aside class="notes">
     <ul>
-      <li>page.screenshot identical across all 4 bindings</li>
-      <li>Java lacks toHaveScreenshot → write ~80-line wrapper</li>
-      <li>+ romankh3 image-comparison library</li>
-      <li>Repo vrt/: Java, Python, .NET</li>
-      <li>Primitive's good enough → the gap is a Saturday</li>
+      <li>page.screenshot is the primitive — identical across all 4 bindings</li>
+      <li>Only Node ships toHaveScreenshot; everywhere else you wrap it yourself</li>
+      <li>~60 lines + an image-diff library (Java example uses romankh3)</li>
+      <li>Don't read the code — point at the repo: Java, Python, .NET all there</li>
+      <li>Primitive's good enough → filling the gap is a Saturday</li>
     </ul>
   </aside>
 </section>
@@ -1186,7 +1233,6 @@ page.on('pageerror', err =>
 page.on('requestfailed', req =>
   networkFailures.push(
     `${req.url()} — ${req.failure()}`));
-
 expect(errors).toHaveLength(0);
       </code></pre>
     </div>
@@ -1205,7 +1251,6 @@ page.onPageError(err ->
 page.onRequestFailed(req ->
     networkFailures.add(
         req.url() + " — " + req.failure()));
-
 assertThat(errors).isEmpty();
       </code></pre>
     </div>
@@ -1361,8 +1406,13 @@ context.setExtraHTTPHeaders(Map.of(
   </svg>
   <aside class="notes">
     <ul>
-      <li>Idea: watch every CI browser live</li>
-      <li>Tests → JPEG frames over WebSocket → Node relay → React dashboard</li>
+      <li>Idea: watch every CI browser live, while it runs</li>
+      <li>Each test opens its own WebSocket (named by test title) and streams JPEG frames from the screencast API</li>
+      <li>Relay (Node, :8080) = the hub: fans IN frames from every test, fans OUT to viewers</li>
+      <li>Dashboard (React, :5173) subscribes over WS, renders one tile per test, updates live</li>
+      <li>Fully decoupled — tests don't know the dashboard exists; they just publish to the relay</li>
+      <li>Why a relay? tests are ephemeral &amp; parallel; the relay is the one stable address the dashboard connects to</li>
+      <li>Scales both ways: many tests in, many viewers out</li>
       <li>3 processes, that's the whole system</li>
     </ul>
   </aside>
