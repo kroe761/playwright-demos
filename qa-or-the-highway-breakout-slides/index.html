@@ -753,7 +753,7 @@ ctx.grantPermissions(List.of("geolocation"));
   <aside class="notes">
     <ul>
       <li>Flip the direction: browser → backend, directly</li>
-      <li>Borrow the real session / CSRF token / auth state</li>
+      <li>Borrow the real session / security token / auth state</li>
       <li>Only Playwright: real browser + real HTTP client, same process</li>
     </ul>
   </aside>
@@ -846,7 +846,7 @@ assertThat(resp.status()).isEqualTo(200);
       <li>context.request / page.request reuse the browser context's cookie jar</li>
       <li>Log in once in the browser → API calls carry the session automatically</li>
       <li>Cookies are shared; localStorage is NOT (never sent over HTTP)</li>
-      <li>The easy path — next slide is for when you need more (e.g. a CSRF header)</li>
+      <li>The easy path — next slide is for when you need more (e.g. a custom security header)</li>
     </ul>
   </aside>
 </section>
@@ -903,14 +903,14 @@ BrowserContext context = browser.newContext(
     <!-- TypeScript (base layer) -->
     <div class="ts-label">TypeScript</div>
     <pre><code class="typescript" data-trim>
-// Scrape CSRF and session cookie
-const csrf = await page.evaluate(() => document.querySelector('meta[name="csrf-token"]').content);
+// Scrape security token and session cookie
+const token = await page.evaluate(() => document.querySelector('meta[name="security-token"]').content);
 const session = (await context.cookies()).find(c => c.name === 'session');
 
-// Set CSRF and Session on the api context
+// Set security token and session on the api context
 const api = await request.newContext({
   baseURL: process.env.BASE_URL,
-  extraHTTPHeaders: { 'X-CSRF-Token': csrf, 'Cookie': `session=${session.value}` }
+  extraHTTPHeaders: { 'X-Security-Token': token, 'Cookie': `session=${session.value}` }
 });
 
 // Hit the backend directly — no more UI
@@ -922,16 +922,16 @@ expect(resp.status()).toBe(200);
     <div class="fragment hidden-until-shown" style="position:absolute; top:0; left:0; right:0;">
       <div class="java-label" style="background:var(--code-bg);">Java</div>
       <pre><code class="java" data-trim>
-// Scrape CSRF and session cookie
-String csrf = (String) page.evaluate("document.querySelector('meta[name=\"csrf-token\"]').content");
+// Scrape security token and session cookie
+String token = (String) page.evaluate("document.querySelector('meta[name=\"security-token\"]').content");
 Optional&lt;Cookie&gt; session = context.cookies().stream()
     .filter(c -> c.name.equals("session")).findFirst().orElseThrow();
 
-// Set CSRF and Session on the api context
+// Set security token and session on the api context
 APIRequestContext api = playwright.request().newContext(
     new APIRequest.NewContextOptions()
         .setBaseURL(System.getenv("BASE_URL"))
-        .setExtraHTTPHeaders(Map.of("X-CSRF-Token", csrf, "Cookie", "session=" + session.value)));
+        .setExtraHTTPHeaders(Map.of("X-Security-Token", token, "Cookie", "session=" + session.value)));
 
 // Hit the backend directly — no more UI
 APIResponse resp = api.get("/api/account/settings");
@@ -941,9 +941,9 @@ assertThat(resp.status()).isEqualTo(200);
   </div>
   <aside class="notes">
     <ul>
-      <li>For gnarly CSRF / custom-header auth</li>
+      <li>For custom-header or token-based auth</li>
       <li>Real browser login (not mocked, not injected)</li>
-      <li>page.evaluate → CSRF from the DOM · context.cookies → session</li>
+      <li>page.evaluate → security token from the DOM · context.cookies → session</li>
       <li>Hand both to API context → browser gone, pure authed HTTP</li>
       <li>[advance] Java fades in over the TypeScript — same moves, more ceremony</li>
     </ul>
