@@ -389,11 +389,10 @@ assertThat(page.getByText("Saved")).isVisible();
     <div>
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
-const resp = await page.waitForResponse(
-  '**/api/save',
-  async () => await saveButton.click()
-);
-// returns the moment the response arrives
+const respPromise = page.waitForResponse('**/api/save');
+await saveButton.click();
+const resp = await respPromise;
+// resolves the moment the response arrives
 expect(resp.status()).toBe(200);
       </code></pre>
     </div>
@@ -427,9 +426,9 @@ assertThat(resp.status()).isEqualTo(200);
     <div>
       <div class="ts-label">TypeScript</div>
       <pre><code class="typescript" data-trim>
-const dl = await page.waitForEvent(
-  'download',
-  async () => await exportButton.click());
+const dlPromise = page.waitForEvent('download');
+await exportButton.click();
+const dl = await dlPromise;
 await dl.saveAs('report.csv');
 // now assert on the file
       </code></pre>
